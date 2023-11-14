@@ -6,10 +6,12 @@ import "dotenv/config"
     export const GIP_PASSWORD =  process.env.GIP_PASSWORD as string
 
     //Server configuration
-    export const SERVER_HOST = process.env.SERVER_HOST as string
+    export const SERVER_HOST = process.env.SERVER_DB_HOST as string
     export const SERVER_DB_NAME = process.env.SERVER_DB_NAME as string
-    export const SERVER_USER = process.env.SERVER_USER as string
-    export const SERVER_PASSWORD = process.env.SERVER_PASSWORD as string
+    export const SERVER_USER = process.env.SERVER_DB_USER as string
+    export const SERVER_PASSWORD = process.env.SERVER_DB_PASSWORD as string
     export const SERVER_LOG_FILE = process.env.LOG_FILE as string
-    export const SERVER_DILECT = process.env.SERVER_DILECT as string
+    export const SERVER_DIALECT = process.env.SERVER_DIALECT as string
+    export const SERVER_ENV = process.env.SERVER_ENV as string
+    export const SERVER_PORT = Number(process.env.SERVER_PORT as string)
 

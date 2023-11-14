@@ -1,16 +1,16 @@
 import { Dialect,Sequelize } from "sequelize";
-import {SERVER_HOST,SERVER_DB_NAME,SERVER_USER,SERVER_PASSWORD,SERVER_DILECT} from "./env"
+import {SERVER_HOST,SERVER_DB_NAME,SERVER_USER,SERVER_PASSWORD,SERVER_DIALECT,SERVER_PORT} from "./env"
 
-export const ALLOWED:string[] = JSON.parse(process.env.ALLOWED_HOSTS as string)
+// export const ALLOWED:string[] = JSON.parse(process.env.ALLOWED_HOSTS as string)
 
 class DBConfig {
   //DB details
   private dbHost = SERVER_HOST
-  private dbDriver = SERVER_DILECT as Dialect 
+  private dbDriver = SERVER_DIALECT as Dialect 
   private dbName = SERVER_DB_NAME
   private dbUser = SERVER_USER
   private dbPassword = SERVER_PASSWORD
-  
+  port  = SERVER_PORT
 
   // private static SingleInstanceSequelize:Sequelize
 
@@ -19,7 +19,7 @@ class DBConfig {
   constructor() {
     this.sequelizeConnection = new Sequelize(this.dbName,this.dbUser,this.dbPassword,{
       host:this.dbHost,
-      dialect:this.dbDriver
+      dialect:this.dbDriver || "mysql"
     })
   } 
 
@@ -60,5 +60,6 @@ class DBConfig {
 
 }
 
+export const SequelizeInstance = new DBConfig()
 
 export default DBConfig;
