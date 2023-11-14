@@ -5,6 +5,7 @@ import {SequelizeInstance} from "../../utilities/config";//Database connection i
 interface RequestResponseInterface {
     id:number;
     TransactionID:string;
+    Payload:string;
     Type: "Request" | "Response";
 }
 
@@ -14,6 +15,7 @@ export interface RequestResponseOut extends Required<RequestResponseInterface>{}
 class RequestResponse extends Model<RequestResponseInterface,RequestResponseIn> implements RequestResponseInterface{
     id:number;
     TransactionID: string;
+    Payload: string;
     Type: "Request" | "Response";
 
 }
@@ -28,6 +30,9 @@ class RequestResponse extends Model<RequestResponseInterface,RequestResponseIn> 
         TransactionID:{
             type:DataTypes.STRING,
             allowNull:false,
+        },
+        Payload:{
+            type:DataTypes.STRING
         },
         Type:{
             type:DataTypes.STRING,
