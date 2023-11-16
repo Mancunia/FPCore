@@ -1,0 +1,17 @@
+const path = require("path")
+
+const dev = process.env.NODE_ENV == "development"
+
+console.log("is dev:",dev)
+
+module.exports = dev ?{
+    "config": path.resolve('./src/utilities/config','config.json'),
+    "models-path": path.resolve('./src/db/models'),
+    "migrations-path": path.resolve('./src/db/migrations'),
+    "seeders-path": path.resolve('./src/db/seeders')
+} :{
+    "config": path.resolve('./dist/utilities/config','config.json'),
+    "models-path": path.resolve('./dist/db/models'),
+    "migrations-path": path.resolve('./dist/db/migrations'),
+    "seeders-path": path.resolve('./dist/db/seeders')
+}

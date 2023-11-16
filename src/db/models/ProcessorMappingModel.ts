@@ -1,4 +1,4 @@
-import { DataTypes,Model,Optional } from "sequelize";
+import { DATE, DataTypes,Model,Optional } from "sequelize";
 import {SequelizeInstance} from "../../utilities/config";
 
 interface ProcessorMappingInterface {

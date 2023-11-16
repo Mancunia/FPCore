@@ -11,8 +11,9 @@ interface TransactionInterface {
 }
 
 export interface TransactionIn extends Optional<TransactionInterface,'id'|'ProcessedAt'> {
-    ApplicationId:number,
-    ProcessorId:number
+    ApplicationId:number;
+    ProcessorId:number;
+    TransactionTypeId:number;
 }
 export interface TransactionOut extends Required<TransactionInterface>{}
 
@@ -31,7 +32,7 @@ Transaction.init({
         autoIncrement: true
     },
     Amount: {
-        type: DataTypes.DOUBLE,
+        type: DataTypes.FLOAT,
         allowNull: false
     },
     SessionID: {

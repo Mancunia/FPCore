@@ -5,16 +5,21 @@
   "main": "index.js",
   "types": "module",
   "scripts": {
+    "build": "tsc -p .",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node dist/index.js",
-    "dev": "nodemon src/index.ts"
+    "start-prod": "export NODE_ENV=production; dist/index.js",
+    "start-dev": "export NODE_ENV=development;nodemon src/index.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
+  "devDependencies": {
+     "ts-node": "^10.9.1",
+    "typescript": "^5.2.2",
     "@types/express": "^4.17.20",
-    "@types/node": "^20.8.10",
+    "@types/node": "^20.8.10"
+  },
+  "dependencies": {
     "axios": "^1.6.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -24,8 +29,6 @@
     "reflect-metadata": "^0.1.13",
     "sequelize": "^6.35.0",
     "sequelize-typescript": "^2.1.5",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.2.2",
     "xml2json": "^0.12.0"
   }
 }
