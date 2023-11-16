@@ -1,4 +1,3 @@
-import { SERVER_ENV } from "../utilities/env";
 import Transaction from "./models/TransactionsModel";//transactions model
 import Application from "./models/ApplicationsModel";//applications model
 import Processor from "./models/ProcessorsModel";//processors model
@@ -6,7 +5,7 @@ import ProcessorMapping from "./models/ProcessorMappingModel";//processor mappin
 import RequestResponse from "./models/RequestResponseModel";//request response model
 import TransactionType from "./models/TransactionTypes";
 
-const isDev = SERVER_ENV == "development";
+const isDev = process.env.NODE_ENV == "development";
 
 const dbInit =() => {
     try {
