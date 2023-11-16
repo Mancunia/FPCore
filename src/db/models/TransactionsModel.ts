@@ -1,7 +1,6 @@
 import { DataTypes,Model,Optional } from "sequelize";
 import { SequelizeInstance } from "../../utilities/config";
-import Processor from "./ProcessorsModel";
-import Application from "./ApplicationsModel";
+import RequestResponse from "./RequestResponseModel";
 
 interface TransactionInterface {
     id:number;
@@ -11,7 +10,10 @@ interface TransactionInterface {
     ProcessedAt:Date
 }
 
-export interface TransactionIn extends Optional<TransactionInterface,'id'|'ProcessedAt'> {}
+export interface TransactionIn extends Optional<TransactionInterface,'id'|'ProcessedAt'> {
+    ApplicationId:number,
+    ProcessorId:number
+}
 export interface TransactionOut extends Required<TransactionInterface>{}
 
 class Transaction extends Model<TransactionInterface,TransactionIn> implements TransactionInterface{
@@ -52,5 +54,8 @@ Transaction.init({
     updatedAt:"UpdatedAt",
     sequelize:SequelizeInstance.getDatabaseConnection()
 })
+
+//constraints
+Transaction.hasMany(RequestResponse)
 
 export default Transaction

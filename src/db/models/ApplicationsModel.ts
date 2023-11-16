@@ -1,6 +1,6 @@
 import { DataTypes,Model,Optional } from "sequelize";
 import {SequelizeInstance} from "../../utilities/config";
-import ProcessorMapping from "./Processor_MappingModel";
+import ProcessorMapping from "./ProcessorMappingModel";
 import Transaction from "./TransactionsModel";
 
 interface ApplicationInterface {

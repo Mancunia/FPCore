@@ -4,17 +4,17 @@ import {SequelizeInstance} from "../../utilities/config";//Database connection i
 
 interface RequestResponseInterface {
     id:number;
-    TransactionID:string;
     Payload:string;
     Type: "Request" | "Response";
 }
 
-export interface RequestResponseIn extends Optional<RequestResponseInterface, 'id'>{}
+export interface RequestResponseIn extends Optional<RequestResponseInterface, 'id'>{
+    TransactionID:string;
+}
 export interface RequestResponseOut extends Required<RequestResponseInterface>{}
 
 class RequestResponse extends Model<RequestResponseInterface,RequestResponseIn> implements RequestResponseInterface{
     id:number;
-    TransactionID: string;
     Payload: string;
     Type: "Request" | "Response";
 
@@ -26,10 +26,6 @@ class RequestResponse extends Model<RequestResponseInterface,RequestResponseIn> 
             type:DataTypes.INTEGER.UNSIGNED,
             primaryKey:true,
             autoIncrement:true
-        },
-        TransactionID:{
-            type:DataTypes.STRING,
-            allowNull:false,
         },
         Payload:{
             type:DataTypes.STRING
@@ -46,8 +42,5 @@ class RequestResponse extends Model<RequestResponseInterface,RequestResponseIn> 
         createdAt:"CreatedAt",
         updatedAt:"UpdatedAt"
     })
-
-    //constraints
-    RequestResponse.hasMany // has many transactions
 
     export default RequestResponse
