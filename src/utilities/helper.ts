@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 // import jwt from "jsonwebtoken"
 // import Config from '../db/config.js';
 import ErrorHandler,{ErrorEnum} from './error';
-// import {v4 as uuidV4} from "uuid"
+import {v4 as uuidV4} from "uuid"
 //imports
 
 // const __filename = fileURLToPath(import.meta.url);
@@ -26,22 +26,23 @@ class HELPER{
         return new Date().toUTCString()
     }
 
-    // public static async logger(message: string){
-    //     // const file = Config.File
-    //     message ="#"+message+"\n"
+    public static async logger(message: string,file:string = ""){
+        // const file = Config.File
+        message ="#"+message+"\n"
     
-    //     try {
-    //         fs.appendFile(`${__dirname}-${file}`, message,(err)=>{
-    //             if(err){
-    //                 console.log(err);
-    //                 throw "Writing File"}
-    //         });
+        try {
+            fs.appendFile(`${__dirname}-${file}`, message,(err)=>{
+                if(err){
+                    console.log(err);
+                    throw `Error Writing File to file: ${file}`
+                  }
+            });
 
-    //     } catch (error) {
-    //         throw error.message
+        } catch (error) {
+            throw error.message
             
-    //     }
-    // }
+        }
+    }
 
     //JSON web Token 
 
@@ -111,19 +112,19 @@ class HELPER{
     }
   }
 
-//   public static async GENERATE_UUID(): Promise<string>{
-//     try {
-//         let uuid = await uuidV4()
+  public static async GENERATE_UUID(): Promise<string>{
+    try {
+        let uuid = await uuidV4()
     
-//         if(!uuid){
-//             uuid = await this.genRandCode()
-//         }
+        if(!uuid){
+            uuid = await this.genRandCode()
+        }
 
-//         return uuid
-//     } catch (error) {
-//        throw await errorHandler.CustomError(ErrorEnum[500],"Try again later 🙏🏼"); 
-//     }
-//   }
+        return uuid
+    } catch (error) {
+       throw await errorHandler.CustomError(ErrorEnum[500],"Try again later 🙏🏼"); 
+    }
+  }
 
   public static FILE_DETAILS(file){
     try {

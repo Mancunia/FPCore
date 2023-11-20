@@ -2,7 +2,11 @@ import GIP_Service from "../../Processors/GIP/GIPService"
 import ErrorHandler,{ ErrorEnum } from "../../utilities/error"
 
 const ERROR = new ErrorHandler()
-class CoreService {
+
+interface TransactionInterface{
+    
+}
+class SendMoneyService {
      
     private GIP:GIP_Service
 
@@ -31,6 +35,9 @@ class CoreService {
     }
 
 
+
+    // async SendMoney(payload):Promise
+
 }
 
-export default CoreService
+export default SendMoneyService
