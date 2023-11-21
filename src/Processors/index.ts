@@ -10,7 +10,8 @@ export interface ProcessorsRepository{
 
 export interface ProcessorsService{
     ProcessorName: "GIP";
-    MakeNameEnquiry:any;
+    LogFile:string;
+    MakeNameEnquiry:(payload:NameEnquiry)=>Promise<any>;
     GetBalanceEnquiry:any;
     MakeFundTransfer:any;
     CheckTransactionStatus?:any;

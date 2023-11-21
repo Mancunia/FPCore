@@ -14,4 +14,5 @@ import "dotenv/config"
     export const SERVER_DIALECT = process.env.SERVER_DIALECT as string
     export const SERVER_ENV = process.env.SERVER_ENV as string
     export const SERVER_PORT = Number(process.env.SERVER_PORT as string)
+    export const SERVER_SECRET = process.env.SERVER_SECRET as string
 

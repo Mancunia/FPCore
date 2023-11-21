@@ -28,6 +28,7 @@ class GIP_Service implements ProcessorsService {
 
     private final: string
     ProcessorName: "GIP";
+    LogFile: string = "./logs/ghipps.log";
     private Repo : GIP_Processor
 
     constructor(){
@@ -50,7 +51,7 @@ class GIP_Service implements ProcessorsService {
             if (!recipientName || !recipientAccount || !bankMobileCode) throw {code:ErrorEnum[403],message:"Some details are missing"}
 
             //2. Check for account type
-             
+             await HELPER.logger(`ATTEMPTING Name Enquiry: payload: ${JSON.stringify(payload)} `,this.LogFile)
 
             //make body
             body={
@@ -70,13 +71,14 @@ class GIP_Service implements ProcessorsService {
             return response.name_to_credit //return name to credit information from response object
 
         } catch (error) {
+            this.final = `ERROR: ${error.message}, `
 
             throw await ERROR.CustomError(error, "Error getting recipient information")
 
 
         }
         finally {
-
+            await HELPER.logger(this.final,this.LogFile)
         }
     }
 
@@ -124,10 +126,17 @@ class GIP_Service implements ProcessorsService {
 
 
 
-    GetBalanceEnquiry: any;
+    GetBalanceEnquiry():Promise<any> {
+
+        return 
+    };
    
+    ReverseTransaction():Promise<any> {
+        return
+    }
+
     CheckTransactionStatus?: any;
-    ReverseTransaction: any;
+   
 
     async CheckProcessorStatus():Promise<boolean>{
 

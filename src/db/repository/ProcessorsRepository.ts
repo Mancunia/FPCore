@@ -1,12 +1,10 @@
 import Processor,{ProcessorIn,ProcessorOut} from "../models/ProcessorsModel";
-import ProcessorMapping from "../models/ProcessorMappingModel";
 import ErrorHandler,{ErrorEnum} from "../../utilities/error";
 
 interface ProcessorRepositoryInterface{
     createProcessor:(payload:ProcessorIn)=>Promise<ProcessorOut>;
     getProcessorByName:(processorName:string)=>Promise<ProcessorOut>;
     getAllProcessors:()=>Promise<ProcessorOut[]>;
-    getProcessorsMappedToApp:(appId:string|number)=>Promise<any[]>//TODO: complete repo function to join ProcessorsMapping to processor to fetch all processors mapped to an app
 }
 
 class ProcessorRepository implements ProcessorRepositoryInterface{
@@ -16,6 +14,7 @@ class ProcessorRepository implements ProcessorRepositoryInterface{
     constructor(){
         this.error = new ErrorHandler()
     }
+    getAllProcessors: () => Promise<ProcessorOut[]>;
 
     //---------------------------------------------------------------- Create Processor --------------------------------
     async createProcessor(payload:ProcessorIn):Promise<ProcessorOut>{
@@ -33,7 +32,7 @@ class ProcessorRepository implements ProcessorRepositoryInterface{
 
 
     //---------------------------------------------------------------- get all Processors --------------------------------
-    async getAllProcessors():Promise<ProcessorOut[]>{
+    async getAllProcessorsByApp():Promise<ProcessorOut[]>{
         try {
             let processors = await Processor.findAll()
             if(!processors) throw this.error.CustomError(ErrorEnum[404],"No proceessors found")
@@ -56,19 +55,6 @@ class ProcessorRepository implements ProcessorRepositoryInterface{
     }
 
 
-    //----------------------------------------------------------------get processors by mapped to apps --------------------------------
-    async getProcessorsMappedToApp(appId:number|string):Promise<any[]>{
-        try {
-            let processors = await ProcessorMapping.findAll({where:{ApplicationId:appId},include:Processor})
-            if(!processors) throw this.error.CustomError(ErrorEnum[401],"No processors found for app")
-
-            return processors
-
-        } catch (error) {
-            throw error
-            
-        }
-    }
 }
 
 

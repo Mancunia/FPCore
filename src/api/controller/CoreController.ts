@@ -8,9 +8,9 @@ class CoreController{
     async MakeNameEnquiry(req: Request, res: Response){
         try {
            
-            let {recipientName,recipientAccount,accountType,bankMobileCode} = req.body//extract body from request
+            let payload= req.body//extract body from request
 
-            let response = await service.MakeNameEnquiry(recipientName,recipientAccount,accountType,bankMobileCode)
+            let response = await service.MakeNameEnquiry(res.locals.appToken,payload)
 
             res.status(200).json(response)
 

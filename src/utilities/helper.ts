@@ -2,10 +2,11 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-// import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken"
 // import Config from '../db/config.js';
 import ErrorHandler,{ErrorEnum} from './error';
 import {v4 as uuidV4} from "uuid"
+import { SERVER_SECRET } from './env';
 //imports
 
 // const __filename = fileURLToPath(import.meta.url);
@@ -46,46 +47,46 @@ class HELPER{
 
     //JSON web Token 
 
-// public static async SessionToken(id:string): Promise<string>{
-//     try {
-//         return await jwt.sign({id},Config.SECRET,{
-//       expiresIn: Utility.SessionMaxAge
-//   });
-//     } catch (error) {
-//        throw await errorHandler.CustomError(ErrorEnum[500],"Try again later 🙏🏼"); 
-//     }
+public static async ENCODE_Token(id:string): Promise<string>{
+    try {
+        return await jwt.sign({id},SERVER_SECRET,{
+      expiresIn: HELPER.SessionMaxAge
+  });
+    } catch (error) {
+       throw await errorHandler.CustomError(ErrorEnum[500],"Try again later 🙏🏼"); 
+    }
   
-// }
+}
 
 
-// public static async DECODE_TOKEN(token:string): Promise<string>{
-//     //check token
-//     if(token){
-//         let back:string = "";
+public static async DECODE_TOKEN(token:string): Promise<string>{
+    //check token
+    if(token){
+        let back:string = "";
   
-//         try{
+        try{
           
-//             await jwt.verify(token,Config.SECRET,(err,decodedToken)=>{
-//             if(err){
-//                 errorHandler.CustomError(ErrorEnum[403],"Invalid Token"); ;
-//             }
-//             else{
+            await jwt.verify(token,SERVER_SECRET,(err,decodedToken)=>{
+            if(err){
+                errorHandler.CustomError(ErrorEnum[403],"Invalid Token"); ;
+            }
+            else{
                
-//                 back=decodedToken.id;
-//             }
-//             });
+                back=decodedToken.id;
+            }
+            });
   
-//             return back;
-//         }
-//         catch(error){
-//             throw error;
-//         }
+            return back;
+        }
+        catch(error){
+            throw error;
+        }
   
-//         }
+        }
         
         
    
-//   }
+  }
 
   public static async GET_DIRECTORY(file:string,dir: string = __dirname): Promise<string> {
     try {

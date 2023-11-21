@@ -6,6 +6,7 @@ interface ProcessorMappingRepositoryInterface {
     createProcessorMapping:(payload:ProcessorMappingIn)=>Promise<ProcessorMappingOut>;
     getAllProcessorMappings():Promise<ProcessorMapping[]>;
     getAllProcessorMappingsByApp_Processor(id:string|number,forApp:boolean):Promise<ProcessorMappingOut[]>
+    getProcessorsMappedToApp:(appId:string|number,processes?:string)=>Promise<any[]>//TODO: complete repo function to join ProcessorsMapping to processor to fetch all processors mapped to an app
 }
 
 class ProcessorMappingRepository implements ProcessorMappingRepositoryInterface{
@@ -17,6 +18,7 @@ class ProcessorMappingRepository implements ProcessorMappingRepositoryInterface{
     //---------------------------------------------------------------- Create ProcessorMapping --------------------------------
     async createProcessorMapping(payload:ProcessorMappingIn):Promise<ProcessorMappingOut> {
         try {
+           
             let processorMapping = await ProcessorMapping.findAll({
                 where: {
                   [Op.and]: [
@@ -25,7 +27,9 @@ class ProcessorMappingRepository implements ProcessorMappingRepositoryInterface{
                     ]
                 }
             }) 
-            if(processorMapping) throw await this.error.CustomError(ErrorEnum[401],"ProcessorMapping already exists")
+             
+
+            if(processorMapping.length > 0) throw await this.error.CustomError(ErrorEnum[401],"ProcessorMapping already exists")
 
             let mapping = await ProcessorMapping.create(payload)
 
@@ -33,7 +37,8 @@ class ProcessorMappingRepository implements ProcessorMappingRepositoryInterface{
 
             
         } catch (error) {
-            if(error.name === "SequelizeUniqueConstraintError") {
+
+                if(error.name === "SequelizeUniqueConstraintError") {
                 throw await this.error.CustomError(ErrorEnum[401],`This mapping has already been done`)
                 }
                 else if(error.message == "ProcessorMapping already exists"){
@@ -74,6 +79,30 @@ class ProcessorMappingRepository implements ProcessorMappingRepositoryInterface{
 
         } catch (error) {
             throw error
+        }
+    }
+
+
+    //----------------------------------------------------------------get processors by mapped to apps --------------------------------
+    async getProcessorsMappedToApp(appId:number|string,processes:string = "MOBILE"):Promise<any[]>{
+        try {
+            // let processors = await ProcessorMapping.findAll({where:{ApplicationId:appId},include:Processor})
+            let fields = ["m.ApplicationId", "m.ProcessorId","p.Name","p.Processes"]
+
+            let processors = await ProcessorMapping.sequelize.query(`
+            Select ${fields} from ProcessorMappings m join Processors p on p.id=m.ProcessorId 
+            where m.ApplicationId = ${appId} and
+            p.Processes = '${processes.toUpperCase()}'
+            and m.DeactivatedAt IS Null and p.DeactivatedAt IS Null and m.deletedAt IS NULL and p.deletedAt IS NULL;
+            `)
+            
+            if(!processors) throw this.error.CustomError(ErrorEnum[401],"No processors found for app")
+
+            return processors[0]
+
+        } catch (error) {
+            throw error
+            
         }
     }
 }

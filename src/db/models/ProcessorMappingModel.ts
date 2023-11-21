@@ -1,6 +1,7 @@
 import { DATE, DataTypes,Model,Optional } from "sequelize";
 import {SequelizeInstance} from "../../utilities/config";
-
+import Application from "./ApplicationsModel";
+import Processor from "./ProcessorsModel";
 interface ProcessorMappingInterface {
     id:number;
     DeactivatedAt:Date;
@@ -46,6 +47,7 @@ ProcessorMapping.init({
 })
 
 //constraints
-
+// ProcessorMapping.belongsTo(Processor)
+// ProcessorMapping.belongsTo(Application)
 
 export default ProcessorMapping

@@ -1,6 +1,6 @@
 
 import express, {Application} from 'express';
-import router from './api/routes/CoreRoutes';
+import router from './api/routes/index';
 
 import { SequelizeInstance } from './utilities/config';
 import dbInit from './db/init';
