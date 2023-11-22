@@ -45,7 +45,7 @@ class ErrorHandler{
             
             case ErrorEnum[400]:
                     //code:400
-                return [ErrorHandler.STATUS_ERROR_400, "Unknown Error",message || "Contact Support for clarification"]
+                return [ErrorHandler.STATUS_ERROR_400, "Bad Request",message || "Contact Support for clarification"]
 
             default:
                 //code:500

@@ -54,11 +54,22 @@ class ExtraServiceController {
 
     async GetAllProcessorsMapped(req: Request, res: Response){
         try {
-            let app = await ProcessorMapping.GetAllProcessorsForApp(req.params.appId)
+            let app = await ProcessorMapping.GetAllProcessorsForApp(res.locals.appToken)
 
             res.status(200).json(app)
         } catch (error) {
             console.log(error)
+            let errors:[number,string,string?] = await errorHandler.HandleError(error?.errorCode,error?.message)
+            res.status(errors[0]).json({error: errors[1],message:errors[2]})
+        }
+    }
+
+    async GetAllApplications(req: Request, res: Response){
+        try {
+            let app =await Application.GetAllApplication()
+            res.status(200).json(app)
+
+        } catch (error) {
             let errors:[number,string,string?] = await errorHandler.HandleError(error?.errorCode,error?.message)
             res.status(errors[0]).json({error: errors[1],message:errors[2]})
         }

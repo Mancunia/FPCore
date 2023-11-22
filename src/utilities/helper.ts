@@ -9,10 +9,6 @@ import {v4 as uuidV4} from "uuid"
 import { SERVER_SECRET } from './env';
 //imports
 
-// const __filename = fileURLToPath(import.meta.url);
-
-// export const __dirname = path.dirname(__filename);
-
 const errorHandler = new ErrorHandler()
 
 class HELPER{
@@ -30,17 +26,20 @@ class HELPER{
     public static async logger(message: string,file:string = ""){
         // const file = Config.File
         message ="#"+message+"\n"
-    
+        let dir = `${__dirname}${file}`
         try {
-            fs.appendFile(`${__dirname}-${file}`, message,(err)=>{
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+              }
+            fs.appendFile(dir, message,async (err)=>{
                 if(err){
-                    console.log(err);
-                    throw `Error Writing File to file: ${file}`
+                    console.log("Error",err);
+                    throw await errorHandler.CustomError(ErrorEnum[500],`Error Writing File to file: ${file}`);
                   }
             });
 
         } catch (error) {
-            throw error.message
+            throw error
             
         }
     }

@@ -28,7 +28,7 @@ class GIP_Service implements ProcessorsService {
 
     private final: string
     ProcessorName: "GIP";
-    LogFile: string = "./logs/ghipps.log";
+    LogFile: string = "/logs/ghipps.log";
     private Repo : GIP_Processor
 
     constructor(){
@@ -51,7 +51,7 @@ class GIP_Service implements ProcessorsService {
             if (!recipientName || !recipientAccount || !bankMobileCode) throw {code:ErrorEnum[403],message:"Some details are missing"}
 
             //2. Check for account type
-             await HELPER.logger(`ATTEMPTING Name Enquiry: payload: ${JSON.stringify(payload)} `,this.LogFile)
+            //  await HELPER.logger(`ATTEMPTING Name Enquiry: payload: ${JSON.stringify(payload)} `,this.LogFile)
 
             //make body
             body={
@@ -78,7 +78,7 @@ class GIP_Service implements ProcessorsService {
 
         }
         finally {
-            await HELPER.logger(this.final,this.LogFile)
+            // await HELPER.logger(this.final,this.LogFile)
         }
     }
 

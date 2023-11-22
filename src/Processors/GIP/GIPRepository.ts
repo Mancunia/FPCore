@@ -62,7 +62,8 @@ import { ErrorEnum } from "../../utilities/error";
 
         
 
-        async NameEnquiry({amount,
+        async NameEnquiry({
+            amount,
             date,
             tracking_trace,
             function_code,
@@ -75,6 +76,7 @@ import { ErrorEnum } from "../../utilities/error";
             let response: GIPNameEnquiryResponseData
             let res: AxiosResponse
             try {
+                console.log("In GIP_NameEnquiry")
                 //xml request body
                 this.data =`?xml version="1.0" encoding="utf-8"?>
                 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">

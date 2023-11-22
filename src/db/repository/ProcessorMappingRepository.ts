@@ -84,17 +84,39 @@ class ProcessorMappingRepository implements ProcessorMappingRepositoryInterface{
 
 
     //----------------------------------------------------------------get processors by mapped to apps --------------------------------
-    async getProcessorsMappedToApp(appId:number|string,processes:string = "MOBILE"):Promise<any[]>{
+    async getProcessorsMappedToApp(appId:number|string,processes:string):Promise<any[]>{
         try {
             // let processors = await ProcessorMapping.findAll({where:{ApplicationId:appId},include:Processor})
             let fields = ["m.ApplicationId", "m.ProcessorId","p.Name","p.Processes"]
+            let query:string
+            console.log("Processes:",processes)
+            switch (processes.toUpperCase()) {
+                case "MOBILE":
+                    query = `
+                    Select ${fields} from ProcessorMappings m join Processors p on p.id=m.ProcessorId 
+                    where m.ApplicationId = ${appId} and p.Processes = 'MOBILE' or p.Processes = 'BOTH'
+                    and m.DeactivatedAt IS Null and p.DeactivatedAt IS Null and m.deletedAt IS NULL and p.deletedAt IS NULL ORDER BY m.CreatedAt desc;
+                    `
+                    break;
+                case "BANK":
+                query = `
+                Select ${fields} from ProcessorMappings m join Processors p on p.id=m.ProcessorId 
+                where m.ApplicationId = ${appId} and p.Processes = 'BANK' or p.Processes = 'BOTH'
+                and m.DeactivatedAt IS Null and p.DeactivatedAt IS Null and m.deletedAt IS NULL and p.deletedAt IS NULL ORDER BY m.CreatedAt desc;
+                `
+                break;
+            
+                default:
+                    console.log("query:default")
+                query = `
+                Select ${fields} from ProcessorMappings m join Processors p on p.id=m.ProcessorId 
+                where m.ApplicationId = ${appId} 
+                and m.DeactivatedAt IS Null and p.DeactivatedAt IS Null and m.deletedAt IS NULL and p.deletedAt IS NULL ORDER BY m.CreatedAt desc;
+                `
+                    break;
+            }
 
-            let processors = await ProcessorMapping.sequelize.query(`
-            Select ${fields} from ProcessorMappings m join Processors p on p.id=m.ProcessorId 
-            where m.ApplicationId = ${appId} and
-            p.Processes = '${processes.toUpperCase()}'
-            and m.DeactivatedAt IS Null and p.DeactivatedAt IS Null and m.deletedAt IS NULL and p.deletedAt IS NULL;
-            `)
+            let processors = await ProcessorMapping.sequelize.query(query)
             
             if(!processors) throw this.error.CustomError(ErrorEnum[401],"No processors found for app")
 

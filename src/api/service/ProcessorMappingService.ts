@@ -14,14 +14,15 @@ class ProcessorMappingService{
         this.appService = new ApplicationService()
     }
 
-    async GetAllProcessorsForApp(app:string): Promise<any[]>{
+    async GetAllProcessorsForApp(app:string,type:string = "BOTH"): Promise<any[]>{
         try {
-            
+
             if(!app)throw await this.error.CustomError(ErrorEnum[403],"Application ID is undefined")
 
-            let appId = (await this.appService.GetApplication(app)).id//get application id from application table
+            let appId = (await this.appService.GetApplication(app))?.id//get application id from application table
+            
 
-            let processors = await this.Repo.getProcessorsMappedToApp(appId)//find all processors
+            let processors = await this.Repo.getProcessorsMappedToApp(appId,type)//find all processors
 
             return processors
             

@@ -8,7 +8,8 @@ const controller = new ExtraServiceController()
 router.post('/createApp/',controller.CreateApplication)
 router.post('/createProcessor/',controller.CreateProcessor)
 router.post('/createProcessormapping/',controller.CreateProcessorMapping)
-router.get('/getProcessor/:appId',controller.GetAllProcessorsMapped)
+router.get('/getProcessor',controller.GetAllProcessorsMapped)
+router.get('/getApplications',controller.GetAllApplications)
 
 
 

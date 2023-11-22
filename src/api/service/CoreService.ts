@@ -36,13 +36,17 @@ class SendMoneyService {
     */
     async MakeNameEnquiry(app:string, payload:NameEnquiry): Promise<string> {
         try {
+            console.log("In Core_NameEnquiry")
             if (!payload.recipientName || !payload.recipientAccount || !payload.bankMobileCode || !payload.accountType) throw {code:ErrorEnum[403],message:"Some details are missing"}
 
-            let processors = await this.mappings.GetAllProcessorsForApp(app)
+            let processors = await this.mappings.GetAllProcessorsForApp(app,payload.accountType)
+            console.log("Processors:", processors)
 
             while(processors.length > 0) {
-                this.Processor = processors[0]
+                console.log("In CORE_while")
+                this.Processor = await this.SwitchProcessor(processors[0].Name)
                 try {
+                    console.log("ProcessorName:",this.Processor)
                     let result = await this.Processor.MakeNameEnquiry(payload)
                     if(result){
                         return result
@@ -76,6 +80,26 @@ class SendMoneyService {
 
 
     // async SendMoney(payload):Promise
+
+
+    async SwitchProcessor(processorName: string):Promise<ProcessorsService> {
+        try {
+            switch (processorName) {
+                case "GIP":
+                    console.log("In Swith ")
+                    return new GIP_Service()
+                    break;
+            
+                default:
+                    console.log("In Swith default")
+                    throw await this.error.CustomError(ErrorEnum[400],"Ran out of processors")
+                    break;
+            }
+            
+        } catch (error) {
+            throw error
+        }
+    }
 
 }
 

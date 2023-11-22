@@ -33,6 +33,26 @@ class ApplicationService{
         try {
             if(!application) throw await this.error.CustomError(ErrorEnum[403],"Application ID not provided")
             let app = await this.repo.getApplicationById(application)
+            if(!app)throw await this.error.CustomError(ErrorEnum[401],"Application Not found")
+            
+            app.Token = await HELPER.ENCODE_Token(app.Token)
+            return app
+            
+        } catch (error) {
+            throw error
+        }
+    }
+
+    async GetAllApplication(): Promise<ApplicationOut[]> {
+        try {
+            let app = await this.repo.getAllApplications()
+            if(!app)throw await this.error.CustomError(ErrorEnum[401],"Applications added yet")
+            
+            app = await Promise.all(app.map(async (ap) => {
+                ap.Token = await HELPER.ENCODE_Token(ap.Token);
+                return ap;
+              }));
+              
             return app
             
         } catch (error) {
