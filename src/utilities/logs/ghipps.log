@@ -1,0 +1,8 @@
+#Error: @ Sun, 26 Nov 2023 22:18:35 GMT - Request Error 
+#Error: @ Sun, 26 Nov 2023 22:20:26 GMT - Request Error 
+#ATTEMPTING Fund transfer: @Sun, 26 Nov 2023 22:22:04 GMT - payload: {"recipientName":"Emmanuel Mensah","recipientAccount":"125716293182","bankMobileCode":"233","accountType":"Mobile","amount":11,"senderName":"Emmanuel Osei","naration":"From Agent"} 
+#Error: @ Sun, 26 Nov 2023 22:22:04 GMT - payload: {"recipientName":"Emmanuel Mensah","recipientAccount":"125716293182","bankMobileCode":"233","accountType":"Mobile","amount":11,"senderName":"Emmanuel Osei","naration":"From Agent"} Request Error 
+#ATTEMPTING Fund transfer: @Sun, 26 Nov 2023 22:52:07 GMT - payload: {"recipientName":"Emmanuel Mensah","recipientAccount":"125716293182","bankMobileCode":"233","accountType":"Mobile","amount":11,"senderName":"Emmanuel Osei","naration":"From Agent"} 
+#Error: @ Sun, 26 Nov 2023 22:52:07 GMT - payload: {"recipientName":"Emmanuel Mensah","recipientAccount":"125716293182","bankMobileCode":"233","accountType":"Mobile","amount":11,"senderName":"Emmanuel Osei","naration":"From Agent"} Request Error 
+#ATTEMPTING Fund transfer: @Mon, 27 Nov 2023 13:12:27 GMT - payload: {"recipientName":"Emmanuel Mensah","recipientAccount":"125716293182","bankMobileCode":"233","accountType":"Mobile","amount":11,"senderName":"Emmanuel Osei","naration":"From Agent"} 
+#Error: @ Mon, 27 Nov 2023 13:12:27 GMT - payload: {"recipientName":"Emmanuel Mensah","recipientAccount":"125716293182","bankMobileCode":"233","accountType":"Mobile","amount":11,"senderName":"Emmanuel Osei","naration":"From Agent"} Request Error 

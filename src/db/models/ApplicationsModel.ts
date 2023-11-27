@@ -4,9 +4,10 @@ import ProcessorMapping from "./ProcessorMappingModel";
 import Transaction from "./TransactionsModel";
 
 interface ApplicationInterface {
-    id:number,
-    Name:string,
-    Token:string,
+    id:number;
+    Name:string;
+    Token:string;
+    CallBackUrl:string
     DeactivatedAt:Date
 }
 
@@ -17,6 +18,7 @@ class Application extends Model<ApplicationInterface,ApplicationIn> implements A
     id:number;
     Name:string;
     Token: string;
+    CallBackUrl:string;
     DeactivatedAt: Date;
 }
 
@@ -32,6 +34,11 @@ Application.init({
         unique:true
     },
     Token:{
+        type:DataTypes.STRING,
+        allowNull:false,
+        unique:true
+    },
+    CallBackUrl:{
         type:DataTypes.STRING,
         allowNull:false,
         unique:true

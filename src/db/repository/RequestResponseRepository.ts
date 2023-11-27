@@ -16,7 +16,7 @@ class RequestResponseRepository implements RequestResponseInterface{
     //---------------------------------------------------------------- Create a new Request/Response record --------------------------------
     async createResponseRequest(payload:RequestResponseIn):Promise<RequestResponseOut>{
         try {
-            let record = RequestResponse.create(payload)
+            let record = await RequestResponse.create(payload)
             return record
         } catch (error) {
             throw error

@@ -1,8 +1,9 @@
 import CoreService from "../service/CoreService";
 import { Request,Response } from "express";
+import ErrorHandler from "../../utilities/error";
 
 const service = new CoreService()
-
+const errorHandler = new ErrorHandler()
 class CoreController{
 
     async MakeNameEnquiry(req: Request, res: Response){
@@ -15,9 +16,21 @@ class CoreController{
             res.status(200).json(response)
 
         } catch (error) {
-            let [code, message,extra_message] = error
+            let errors:[number,string,string?] = await errorHandler.HandleError(error?.errorCode,error?.message)
+            res.status(errors[0]).json({error: errors[1],message:errors[2]})
+        }
+    }
 
-            res.status(code).json({message,extra_message})
+    async MakeFundTransfer(req: Request, res: Response){
+        try {
+            let payload = req.body
+            let response = await service.MakeFundTransfer(res.locals.appToken,payload)
+
+            res.status(200).json(response)
+            
+        } catch (error) {
+            let errors:[number,string,string?] = await errorHandler.HandleError(error?.errorCode,error?.message)
+            res.status(errors[0]).json({error: errors[1],message:errors[2]})
         }
     }
 }

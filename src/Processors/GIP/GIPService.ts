@@ -20,7 +20,7 @@ enum CHANNELCODES {
     "Bank Tellers" = 100
 }
 
-let ERROR = new ErrorHandler()
+
 
 
 
@@ -28,11 +28,13 @@ class GIP_Service implements ProcessorsService {
 
     private final: string
     ProcessorName: "GIP";
-    LogFile: string = "/logs/ghipps.log";
+    LogFile: string = "/ghipps.log";
     private Repo : GIP_Processor
+    private errorHandler: ErrorHandler
 
     constructor(){
         this.Repo = new GIP_Processor()
+        this.errorHandler = new ErrorHandler()
     }
 
     /*
@@ -51,7 +53,7 @@ class GIP_Service implements ProcessorsService {
             if (!recipientName || !recipientAccount || !bankMobileCode) throw {code:ErrorEnum[403],message:"Some details are missing"}
 
             //2. Check for account type
-            //  await HELPER.logger(`ATTEMPTING Name Enquiry: payload: ${JSON.stringify(payload)} `,this.LogFile)
+             await HELPER.logger(`ATTEMPTING Name Enquiry: @${HELPER.getDate()} - payload: ${JSON.stringify(payload)} `,this.LogFile)
 
             //make body
             body={
@@ -59,7 +61,7 @@ class GIP_Service implements ProcessorsService {
                 date: HELPER.getDate(),
                 function_code: FUNCTIONCODES["Name Enquiry For Credit"],
                 desitination_bank:String(bankMobileCode),
-                session_id: "use Helper.getUUID() method",
+                session_id: await HELPER.GENERATE_UUID(),
                 channel_code: String(accountType == "MOBILE" ? CHANNELCODES["Mobile Phones"] : CHANNELCODES["Bank Tellers"]),
                 account_to_credit:recipientAccount,
                 narration:"Name Enquiry For Credit",
@@ -71,14 +73,14 @@ class GIP_Service implements ProcessorsService {
             return response.name_to_credit //return name to credit information from response object
 
         } catch (error) {
-            this.final = `ERROR: ${error.message}, `
-
-            throw await ERROR.CustomError(error, "Error getting recipient information")
+            this.final= `Error: @ ${HELPER.getDate()} - ${error.message} payload: ${JSON.stringify(payload)}`
+           await this.ErrorSwitch(error,"Something went wrong when getting name information")
 
 
         }
         finally {
-            // await HELPER.logger(this.final,this.LogFile)
+            await HELPER.logger(this.final,this.LogFile)
+            this.final = null
         }
     }
 
@@ -95,12 +97,15 @@ class GIP_Service implements ProcessorsService {
             //Check transaction details
             if(!senderName || !recipientName || !amount || !recipientAccount || !accountType) throw {code:ErrorEnum[403],message:"Some essential data was not passed"};
 
+             //2. log transaction details
+             await HELPER.logger(`ATTEMPTING Fund transfer: @${HELPER.getDate()} - payload: ${JSON.stringify(payload)} `,this.LogFile)
+
             //Make body
             body = {
                 amount:(String(amount)).padStart(12, "0"),
                 account_to_credit:recipientAccount,
                 date: HELPER.getDate(),
-                tracking_trace:"use Helper.getUUID() method",
+                tracking_trace: await HELPER.GENERATE_UUID(),
                 function_code:FUNCTIONCODES['Fund Transfer For Credit'],
                 desitination_bank:String(bankMobileCode),
                 session_id:"session",
@@ -115,12 +120,12 @@ class GIP_Service implements ProcessorsService {
             
             
         } catch (error) {
-            let [code, message, extra] = error
-
-            throw ERROR.HandleError(code, extra)
+            this.final= `Error: @ ${HELPER.getDate()} - payload: ${JSON.stringify(payload)} ${error.message} `
+           throw await this.ErrorSwitch(error,"Something went wrong while make transfer");
         }
         finally{
-
+            await HELPER.logger(this.final,this.LogFile)
+            this.final = null
         }
     }
 
@@ -135,7 +140,9 @@ class GIP_Service implements ProcessorsService {
         return
     }
 
-    CheckTransactionStatus?: any;
+    CheckTransactionStatus():Promise<any> {
+        return 
+    };
    
 
     async CheckProcessorStatus():Promise<boolean>{
@@ -143,6 +150,22 @@ class GIP_Service implements ProcessorsService {
         return await false
     }
 
+
+    private async ErrorSwitch(code:number|string|Error,defaultMessage:string ="Invalid"){
+        switch (code) {
+            case "100":
+                throw await this.errorHandler.CustomError(ErrorEnum[403],"Invalid SOAP envelope")
+            case "306":    
+            throw await this.errorHandler.CustomError(ErrorEnum[403],"Invalid SOAP envelope")
+            
+            case "400":
+             throw await this.errorHandler.CustomError(ErrorEnum[400],"Something happened")
+                
+            default:
+                throw code
+             
+           }
+    }
 }
 
 export default GIP_Service

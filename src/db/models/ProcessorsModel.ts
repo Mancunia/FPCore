@@ -1,7 +1,7 @@
 import { DataTypes,Model,Optional } from "sequelize";
 import { SequelizeInstance } from "../../utilities/config";
 import ProcessorMapping from "./ProcessorMappingModel";
-import Transaction from "./TransactionsModel";
+import RequestResponse from "./RequestResponseModel";
 
 
 interface ProcessorInterface {
@@ -49,7 +49,7 @@ Processor.init({
 
 //constraints ----------------------------------------------------------------
 Processor.hasMany(ProcessorMapping)
-Processor.hasMany(Transaction)
+Processor.hasMany(RequestResponse)
 
 
 export default Processor

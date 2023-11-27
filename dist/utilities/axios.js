@@ -15,7 +15,17 @@ class SingletonAxios {
         return SingletonAxios.instance;
     }
     async request(data) {
-        return await axios_1.default.request(data);
+        try {
+            return await axios_1.default.request(data);
+        }
+        catch (error) {
+            if (axios_1.default.isCancel(error)) {
+                console.error('Request was canceled:', error.message);
+            }
+            else {
+                console.error('Axios request error:', error.message);
+            }
+        }
     }
 }
 exports.default = SingletonAxios;

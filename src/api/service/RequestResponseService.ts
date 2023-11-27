@@ -12,8 +12,14 @@ class RequestResponseService{
         this.error = new ErrorHandler()
     }
 
-    async CreateRequestResponse(request: RequestResponseIn):Promise<RequestResponseOut> {
+    async CreateRequestResponse(isRequest:boolean,transactionID:number,processorID:number,payload:any):Promise<RequestResponseOut> {
         try {
+            let request:RequestResponseIn = {
+                TransactionId: transactionID,
+                ProcessorId: processorID,
+                Payload: JSON.stringify(payload),
+                Type:isRequest ? "Request" : "Response"
+            }
             let response = await this.repo.createResponseRequest(request)
             return response
         } catch (error) {

@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken"
 // import Config from '../db/config.js';
 import ErrorHandler,{ErrorEnum} from './error';
 import {v4 as uuidV4} from "uuid"
-import { SERVER_SECRET } from './env';
+import { SERVER_SECRET,SERVER_LOG_FILE } from './env';
 //imports
 
 const errorHandler = new ErrorHandler()
@@ -26,12 +26,13 @@ class HELPER{
     public static async logger(message: string,file:string = ""){
         // const file = Config.File
         message ="#"+message+"\n"
-        let dir = `${__dirname}${file}`
+        let dir = `${__dirname}${SERVER_LOG_FILE}`
         try {
+
             if (!fs.existsSync(dir)) {
                 fs.mkdirSync(dir, { recursive: true });
               }
-            fs.appendFile(dir, message,async (err)=>{
+            fs.appendFile(dir+file, message,async (err)=>{
                 if(err){
                     console.log("Error",err);
                     throw await errorHandler.CustomError(ErrorEnum[500],`Error Writing File to file: ${file}`);
@@ -39,6 +40,7 @@ class HELPER{
             });
 
         } catch (error) {
+            console.log("Error logger",error);
             throw error
             
         }

@@ -55,3 +55,8 @@ export interface GIPFundTransferResponseData extends GIPBasicResponseData{
     account_to_credit: string;
     name_to_dedit: string;
 }
+
+export interface GIPTransactionStatusQueryResponseData extends GIPBasicResponseData{
+    account_to_debit: string;
+    
+}

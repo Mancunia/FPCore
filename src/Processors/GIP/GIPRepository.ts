@@ -3,7 +3,7 @@ import { NameEnquiryRequestData,FundTransferRequestData,BalanceEnquiryRequestDat
 import { GIPNameEnquiryResponseData,GIPFundTransferResponseData,GIPBasicResponseData } from "./DTO";//response data transfer objects
 import toJson from "../../utilities/xmlParser";
 import SingletonAxios from "../../utilities/axios";
-import {GIP_PASSWORD,GIP_URL,GIP_USER} from "../../utilities/env";
+import {GIP_PASSWORD,GIP_URL,GIP_USER,SERVER_TIMEOUT} from "../../utilities/env";
 import { AxiosResponse } from "axios";
 import { ErrorEnum } from "../../utilities/error";
 
@@ -78,7 +78,7 @@ import { ErrorEnum } from "../../utilities/error";
             try {
                 console.log("In GIP_NameEnquiry")
                 //xml request body
-                this.data =`?xml version="1.0" encoding="utf-8"?>
+                this.data =`<?xml version="1.0" encoding="utf-8"?>
                 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                     <soapenv:Body>
                         <com:GIPTransaction>
@@ -104,6 +104,7 @@ import { ErrorEnum } from "../../utilities/error";
                     method: 'post',
                     maxBodyLength: Infinity,
                     url: GIP_URL,
+                    timeout:SERVER_TIMEOUT,
                     headers: { 
                       'Content-Type': 'text/xml; charset=utf-8'
                     },
@@ -177,7 +178,7 @@ import { ErrorEnum } from "../../utilities/error";
             //TODO: Add fundtransfer functionality
             try {
 
-                this.data =`?xml version="1.0" encoding="utf-8"?>
+                this.data =`<?xml version="1.0" encoding="utf-8"?>
                 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                     <soapenv:Body>
                         <com:GIPTransaction>
@@ -207,6 +208,7 @@ import { ErrorEnum } from "../../utilities/error";
                     method: 'post',
                     maxBodyLength: Infinity,
                     url: GIP_URL,
+                    timeout:SERVER_TIMEOUT,
                     headers: { 
                       'Content-Type': 'text/xml; charset=utf-8'
                     },
@@ -243,17 +245,7 @@ import { ErrorEnum } from "../../utilities/error";
                 
             } catch (error) {
                   //TODO:Handle error response
-                  let code = error.message
-               switch (code) {
-                case "100":
-                case "306":    
-                throw ErrorEnum["ForbiddenError"]
-                    break;
-                    
-                default:
-                    throw ErrorEnum["Unknown error"]
-                    break;
-               }
+                throw error
             }
         }
 
@@ -278,7 +270,7 @@ import { ErrorEnum } from "../../utilities/error";
             //TODO: Add fundtransfer functionality
             try {
 
-                this.data =`?xml version="1.0" encoding="utf-8"?>
+                this.data =`<?xml version="1.0" encoding="utf-8"?>
                 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                     <soapenv:Body>
                         <com:GIPTransaction>
@@ -309,6 +301,7 @@ import { ErrorEnum } from "../../utilities/error";
                     method: 'post',
                     maxBodyLength: Infinity,
                     url: GIP_URL,
+                    timeout:SERVER_TIMEOUT,
                     headers: { 
                       'Content-Type': 'text/xml; charset=utf-8'
                     },
@@ -347,28 +340,13 @@ import { ErrorEnum } from "../../utilities/error";
                 
             } catch (error) {
                   //TODO:Handle error exceptions
-                  let code = error.message
-                  switch (code) {
-                   case "100":
-                   case "306":    
-                   throw {code:ErrorEnum[403],message:"Invalid SOAP envelope"}
-                   
-                   case "400":
-                    throw {code:ErrorEnum[400],message:"Something happened"}
-                       
-                   default:
-                       throw ErrorEnum[400]
-                    
-                  }
-                  
-
+                throw error
             }
             
         }
 
-        async CheckTransactionStatus(): Promise<object> {
-            //TODO: Add check transaction status functionality
-            return await {}
+        async CheckTransactionStatus(): Promise<any> {
+            return
         }
 
         async ReverseTransaction(): Promise<object> {

@@ -1,10 +1,11 @@
 import TransactionType,{TransactionTypeIn,TransactionTypeOut} from "../models/TransactionTypes";
 import ErrorHandler,{ErrorEnum} from "../../utilities/error";
+import { Op } from "sequelize";
 
 interface TransactionTypesRepo_Interface {
     createTransactionType:(TransactionTypeDetails: TransactionTypeIn)=>Promise<TransactionTypeOut>
     updateTransactionType:(type:number,TransactionTypeDetails: TransactionTypeIn)=>Promise<TransactionTypeOut>
-    selectOneTransactionType:(type:number)=>Promise<TransactionTypeOut>
+    selectOneTransactionType:(type:string)=>Promise<TransactionTypeOut>
 
 }
 
@@ -30,9 +31,11 @@ class TransactionTypesRepository implements TransactionTypesRepo_Interface {
     }
 
     //---------------------------------------------------------------- Get A Transaction Types ----------------------------------------------------------------
-    async selectOneTransactionType(type: number): Promise<TransactionTypeOut>{
+    async selectOneTransactionType(type: string|number): Promise<TransactionTypeOut>{
         try {
-            let transactionType = await TransactionType.findOne({where:{id:type}})
+            let transactionType = await TransactionType.findOne({where:{
+                [Op.or]:[{id:type},{Name:type}]
+            }})
             if(!transactionType) throw await this.error.CustomError(ErrorEnum[404],"Transaction Type Not found")
 
             return transactionType

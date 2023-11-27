@@ -46,6 +46,7 @@ var CHANNELCODES;
 let ERROR = new error_1.default();
 class GIP_Service {
     constructor() {
+        this.LogFile = "/logs/ghipps.log";
         this.Repo = new GIPRepository_1.default();
     }
     /*
@@ -64,6 +65,7 @@ class GIP_Service {
             if (!recipientName || !recipientAccount || !bankMobileCode)
                 throw { code: error_1.ErrorEnum[403], message: "Some details are missing" };
             //2. Check for account type
+            //  await HELPER.logger(`ATTEMPTING Name Enquiry: payload: ${JSON.stringify(payload)} `,this.LogFile)
             //make body
             body = {
                 amount: '000000000000',
@@ -80,9 +82,11 @@ class GIP_Service {
             return response.name_to_credit; //return name to credit information from response object
         }
         catch (error) {
+            this.final = `ERROR: ${error.message}, `;
             throw await ERROR.CustomError(error, "Error getting recipient information");
         }
         finally {
+            // await HELPER.logger(this.final,this.LogFile)
         }
     }
     /*
@@ -120,6 +124,13 @@ class GIP_Service {
         }
         finally {
         }
+    }
+    GetBalanceEnquiry() {
+        return;
+    }
+    ;
+    ReverseTransaction() {
+        return;
     }
     async CheckProcessorStatus() {
         return await false;

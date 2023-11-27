@@ -25,7 +25,8 @@ Transaction.init({
     },
     Status: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        defaultValue: "Pending"
     },
     ProcessedAt: {
         type: sequelize_1.DataTypes.DATE,

@@ -25,6 +25,11 @@ Application.init({
         allowNull: false,
         unique: true
     },
+    CallBackUrl: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
     DeactivatedAt: {
         type: sequelize_1.DataTypes.DATE
     }

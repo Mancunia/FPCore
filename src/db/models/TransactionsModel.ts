@@ -10,9 +10,8 @@ interface TransactionInterface {
     ProcessedAt:Date
 }
 
-export interface TransactionIn extends Optional<TransactionInterface,'id'|'ProcessedAt'> {
+export interface TransactionIn extends Optional<TransactionInterface,'id'|'ProcessedAt'|'Status'> {
     ApplicationId:number;
-    ProcessorId:number;
     TransactionTypeId:number;
 }
 export interface TransactionOut extends Required<TransactionInterface>{}
@@ -42,7 +41,8 @@ Transaction.init({
     },
     Status:{
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        defaultValue:"Pending"
     },
     ProcessedAt:{
         type: DataTypes.DATE,

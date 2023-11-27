@@ -26,12 +26,12 @@ export interface NameEnquiry{
     recipientName:string; 
     recipientAccount:string; 
     accountType: "MOBILE"|"BANK"
-    bankMobileCode:number
+    bankMobileCode:number|string
 }
 
 export interface FundTransfer extends NameEnquiry{
     amount:number;
     senderName:string;
-    bankMobileCode:number
     narration:string
+    
 }

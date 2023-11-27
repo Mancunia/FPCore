@@ -26,62 +26,71 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+//imports
+const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-// import jwt from "jsonwebtoken"
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 // import Config from '../db/config.js';
 const error_1 = __importStar(require("./error"));
-// import {v4 as uuidV4} from "uuid"
+const uuid_1 = require("uuid");
+const env_1 = require("./env");
 //imports
-// const __filename = fileURLToPath(import.meta.url);
-// export const __dirname = path.dirname(__filename);
 const errorHandler = new error_1.default();
 class HELPER {
     static getDate() {
         return new Date().toUTCString();
     }
-    // public static async logger(message: string){
-    //     // const file = Config.File
-    //     message ="#"+message+"\n"
-    //     try {
-    //         fs.appendFile(`${__dirname}-${file}`, message,(err)=>{
-    //             if(err){
-    //                 console.log(err);
-    //                 throw "Writing File"}
-    //         });
-    //     } catch (error) {
-    //         throw error.message
-    //     }
-    // }
+    static async logger(message, file = "") {
+        // const file = Config.File
+        message = "#" + message + "\n";
+        let dir = `${__dirname}${file}`;
+        try {
+            if (!fs_1.default.existsSync(dir)) {
+                fs_1.default.mkdirSync(dir, { recursive: true });
+            }
+            fs_1.default.appendFile(dir, message, async (err) => {
+                if (err) {
+                    console.log("Error", err);
+                    throw await errorHandler.CustomError(error_1.ErrorEnum[500], `Error Writing File to file: ${file}`);
+                }
+            });
+        }
+        catch (error) {
+            throw error;
+        }
+    }
     //JSON web Token 
-    // public static async SessionToken(id:string): Promise<string>{
-    //     try {
-    //         return await jwt.sign({id},Config.SECRET,{
-    //       expiresIn: Utility.SessionMaxAge
-    //   });
-    //     } catch (error) {
-    //        throw await errorHandler.CustomError(ErrorEnum[500],"Try again later 🙏🏼"); 
-    //     }
-    // }
-    // public static async DECODE_TOKEN(token:string): Promise<string>{
-    //     //check token
-    //     if(token){
-    //         let back:string = "";
-    //         try{
-    //             await jwt.verify(token,Config.SECRET,(err,decodedToken)=>{
-    //             if(err){
-    //                 errorHandler.CustomError(ErrorEnum[403],"Invalid Token"); ;
-    //             }
-    //             else{
-    //                 back=decodedToken.id;
-    //             }
-    //             });
-    //             return back;
-    //         }
-    //         catch(error){
-    //             throw error;
-    //         }
-    //         }
-    //   }
+    static async ENCODE_Token(id) {
+        try {
+            return await jsonwebtoken_1.default.sign({ id }, env_1.SERVER_SECRET, {
+                expiresIn: HELPER.SessionMaxAge
+            });
+        }
+        catch (error) {
+            throw await errorHandler.CustomError(error_1.ErrorEnum[500], "Try again later 🙏🏼");
+        }
+    }
+    static async DECODE_TOKEN(token) {
+        //check token
+        if (token) {
+            let back = "";
+            try {
+                await jsonwebtoken_1.default.verify(token, env_1.SERVER_SECRET, (err, decodedToken) => {
+                    if (err) {
+                        errorHandler.CustomError(error_1.ErrorEnum[403], "Invalid Token");
+                        ;
+                    }
+                    else {
+                        back = decodedToken.id;
+                    }
+                });
+                return back;
+            }
+            catch (error) {
+                throw error;
+            }
+        }
+    }
     static async GET_DIRECTORY(file, dir = __dirname) {
         try {
             let directory = await path_1.default.join(dir, file);
@@ -105,17 +114,18 @@ class HELPER {
             throw await errorHandler.CustomError(error_1.ErrorEnum[500], "Try again later");
         }
     }
-    //   public static async GENERATE_UUID(): Promise<string>{
-    //     try {
-    //         let uuid = await uuidV4()
-    //         if(!uuid){
-    //             uuid = await this.genRandCode()
-    //         }
-    //         return uuid
-    //     } catch (error) {
-    //        throw await errorHandler.CustomError(ErrorEnum[500],"Try again later 🙏🏼"); 
-    //     }
-    //   }
+    static async GENERATE_UUID() {
+        try {
+            let uuid = await (0, uuid_1.v4)();
+            if (!uuid) {
+                uuid = await this.genRandCode();
+            }
+            return uuid;
+        }
+        catch (error) {
+            throw await errorHandler.CustomError(error_1.ErrorEnum[500], "Try again later 🙏🏼");
+        }
+    }
     static FILE_DETAILS(file) {
         try {
             let ext = (path_1.default.extname(file.name));

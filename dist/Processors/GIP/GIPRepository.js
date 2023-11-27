@@ -51,8 +51,9 @@ class GIP_Processor {
         let response;
         let res;
         try {
+            console.log("In GIP_NameEnquiry");
             //xml request body
-            this.data = `?xml version="1.0" encoding="utf-8"?>
+            this.data = `<?xml version="1.0" encoding="utf-8"?>
                 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                     <soapenv:Body>
                         <com:GIPTransaction>
@@ -77,6 +78,7 @@ class GIP_Processor {
                 method: 'post',
                 maxBodyLength: Infinity,
                 url: env_1.GIP_URL,
+                timeout: env_1.SERVER_TIMEOUT,
                 headers: {
                     'Content-Type': 'text/xml; charset=utf-8'
                 },
@@ -154,6 +156,7 @@ class GIP_Processor {
                 method: 'post',
                 maxBodyLength: Infinity,
                 url: env_1.GIP_URL,
+                timeout: env_1.SERVER_TIMEOUT,
                 headers: {
                     'Content-Type': 'text/xml; charset=utf-8'
                 },
@@ -230,6 +233,7 @@ class GIP_Processor {
                 method: 'post',
                 maxBodyLength: Infinity,
                 url: env_1.GIP_URL,
+                timeout: env_1.SERVER_TIMEOUT,
                 headers: {
                     'Content-Type': 'text/xml; charset=utf-8'
                 },

@@ -1,6 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";//Sequelize module
 import {SequelizeInstance} from "../../utilities/config";//Database connection instance
-//TODO: import Transaction model here
+
 
 interface RequestResponseInterface {
     id:number;
@@ -8,8 +8,9 @@ interface RequestResponseInterface {
     Type: "Request" | "Response";
 }
 
-export interface RequestResponseIn extends Optional<RequestResponseInterface, 'id'>{
-    TransactionID:string;
+export interface RequestResponseIn extends Optional<RequestResponseInterface, 'id'> {
+    TransactionId:number;
+    ProcessorId:number;
 }
 export interface RequestResponseOut extends Required<RequestResponseInterface>{}
 

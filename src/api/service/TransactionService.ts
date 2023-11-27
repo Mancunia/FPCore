@@ -16,7 +16,7 @@ class TransactionService{
     async CreateTransaction(payload:TransactionIn): Promise<TransactionOut> {
 
         try {
-            if(!payload.SessionID||!payload.ApplicationId||!payload.ProcessorId) throw await this.error.CustomError(ErrorEnum[403],"Some essential information is missing")
+            if(!payload.SessionID||!payload.ApplicationId) throw await this.error.CustomError(ErrorEnum[403],"Some essential information is missing")
 
             let transaction = await this.Repo.createTransaction(payload)
             return transaction

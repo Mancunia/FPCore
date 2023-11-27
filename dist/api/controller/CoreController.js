@@ -8,8 +8,8 @@ const service = new CoreService_1.default();
 class CoreController {
     async MakeNameEnquiry(req, res) {
         try {
-            let { recipientName, recipientAccount, accountType, bankMobileCode } = req.body; //extract body from request
-            let response = await service.MakeNameEnquiry(recipientName, recipientAccount, accountType, bankMobileCode);
+            let payload = req.body; //extract body from request
+            let response = await service.MakeNameEnquiry(res.locals.appToken, payload);
             res.status(200).json(response);
         }
         catch (error) {

@@ -4,7 +4,8 @@ export enum ErrorEnum{
     "Unknown error"=400,
     "UniqueConstraint"=401,
     "NotFound"=404,
-    "ForbiddenError"=403
+    "ForbiddenError"=403,
+    "TimedOutError" = 408
 }
 
 class ErrorHandler{
@@ -13,6 +14,7 @@ class ErrorHandler{
     private static readonly STATUS_ERROR_403:number = 403;
     private static readonly STATUS_ERROR_401:number = 401;
     private static readonly STATUS_ERROR_400:number = 400;
+    private static readonly STATUS_ERROR_408:number = 408;
 
     public fileName:string 
 
@@ -30,6 +32,8 @@ class ErrorHandler{
     public async HandleError(error:string,message=""):Promise<[number,string,string]>{ 
         console.log("message",error)
         switch (error) {
+            case ErrorEnum[408]:
+                return [ErrorHandler.STATUS_ERROR_408, "Time Out",message || "Request Timed Out"]
             case ErrorEnum[404]:
                 //code:404
             return [ErrorHandler.STATUS_ERROR_404, "Not Found",message || "Data not found"]

@@ -10,6 +10,14 @@ ProcessorMapping.init({
         primaryKey: true,
         autoIncrement: true
     },
+    ApplicationId: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: false
+    },
+    ProcessorId: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: false
+    },
     DeactivatedAt: {
         type: sequelize_1.DataTypes.DATE
     }
@@ -21,5 +29,7 @@ ProcessorMapping.init({
     sequelize: config_1.SequelizeInstance.getDatabaseConnection()
 });
 //constraints
+// ProcessorMapping.belongsTo(Processor)
+// ProcessorMapping.belongsTo(Application)
 exports.default = ProcessorMapping;
 //# sourceMappingURL=ProcessorMappingModel.js.map
