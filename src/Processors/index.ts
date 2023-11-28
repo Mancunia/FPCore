@@ -32,6 +32,7 @@ export interface NameEnquiry{
 export interface FundTransfer extends NameEnquiry{
     amount:number;
     senderName:string;
-    narration:string
+    narration:string;
+    referenceId:string;
     
 }

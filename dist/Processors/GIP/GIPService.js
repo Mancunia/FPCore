@@ -29,6 +29,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const GIPRepository_1 = __importDefault(require("./GIPRepository"));
 const helper_1 = __importDefault(require("../../utilities/helper"));
 const error_1 = __importStar(require("../../utilities/error"));
+const workerThreads_1 = __importDefault(require("../../utilities/workerThreads"));
 var FUNCTIONCODES;
 (function (FUNCTIONCODES) {
     FUNCTIONCODES[FUNCTIONCODES["Name Enquiry For Credit"] = 230] = "Name Enquiry For Credit";
@@ -37,17 +38,21 @@ var FUNCTIONCODES;
     FUNCTIONCODES[FUNCTIONCODES["Fund Transfer For Debit"] = 241] = "Fund Transfer For Debit";
     FUNCTIONCODES[FUNCTIONCODES["OTP request before Debit"] = 242] = "OTP request before Debit";
     FUNCTIONCODES[FUNCTIONCODES["Balance Enquiry"] = 250] = "Balance Enquiry";
+    FUNCTIONCODES[FUNCTIONCODES["Transaction Status Check"] = 111] = "Transaction Status Check";
 })(FUNCTIONCODES || (FUNCTIONCODES = {}));
 var CHANNELCODES;
 (function (CHANNELCODES) {
     CHANNELCODES[CHANNELCODES["Mobile Phones"] = 300] = "Mobile Phones";
     CHANNELCODES[CHANNELCODES["Bank Tellers"] = 100] = "Bank Tellers";
 })(CHANNELCODES || (CHANNELCODES = {}));
-let ERROR = new error_1.default();
 class GIP_Service {
+    // private transactions:TransactionService
     constructor() {
-        this.LogFile = "/logs/ghipps.log";
+        this.LogFile = "/ghipps.log";
         this.Repo = new GIPRepository_1.default();
+        this.errorHandler = new error_1.default();
+        this.workers = new workerThreads_1.default(4);
+        // this.transactions = new TransactionService()
     }
     /*
     1. Check recipient details
@@ -65,14 +70,14 @@ class GIP_Service {
             if (!recipientName || !recipientAccount || !bankMobileCode)
                 throw { code: error_1.ErrorEnum[403], message: "Some details are missing" };
             //2. Check for account type
-            //  await HELPER.logger(`ATTEMPTING Name Enquiry: payload: ${JSON.stringify(payload)} `,this.LogFile)
+            await helper_1.default.logger(`ATTEMPTING Name Enquiry: @${helper_1.default.getDate()} - payload: ${JSON.stringify(payload)} `, this.LogFile);
             //make body
             body = {
                 amount: '000000000000',
                 date: helper_1.default.getDate(),
                 function_code: FUNCTIONCODES["Name Enquiry For Credit"],
                 desitination_bank: String(bankMobileCode),
-                session_id: "use Helper.getUUID() method",
+                session_id: await helper_1.default.GENERATE_UUID(),
                 channel_code: String(accountType == "MOBILE" ? CHANNELCODES["Mobile Phones"] : CHANNELCODES["Bank Tellers"]),
                 account_to_credit: recipientAccount,
                 narration: "Name Enquiry For Credit",
@@ -82,11 +87,12 @@ class GIP_Service {
             return response.name_to_credit; //return name to credit information from response object
         }
         catch (error) {
-            this.final = `ERROR: ${error.message}, `;
-            throw await ERROR.CustomError(error, "Error getting recipient information");
+            this.final = `Error: @ ${helper_1.default.getDate()} - ${error.message} payload: ${JSON.stringify(payload)}`;
+            await this.ErrorSwitch(error, "Something went wrong when getting name information");
         }
         finally {
-            // await HELPER.logger(this.final,this.LogFile)
+            await helper_1.default.logger(this.final, this.LogFile);
+            this.final = null;
         }
     }
     /*
@@ -97,17 +103,19 @@ class GIP_Service {
     */
     async MakeFundTransfer(payload) {
         let body;
-        let { senderName, amount, recipientName, recipientAccount, accountType, bankMobileCode, narration } = payload;
+        let { senderName, amount, recipientName, recipientAccount, accountType, bankMobileCode, narration, referenceId } = payload;
         try {
             //Check transaction details
-            if (!senderName || !recipientName || !amount || !recipientAccount || !accountType)
+            if (!senderName || !recipientName || !amount || !recipientAccount || !accountType || !referenceId)
                 throw { code: error_1.ErrorEnum[403], message: "Some essential data was not passed" };
+            //2. log transaction details
+            await helper_1.default.logger(`ATTEMPTING Fund transfer: @${helper_1.default.getDate()} - payload: ${JSON.stringify(payload)} `, this.LogFile);
             //Make body
             body = {
                 amount: (String(amount)).padStart(12, "0"),
                 account_to_credit: recipientAccount,
                 date: helper_1.default.getDate(),
-                tracking_trace: "use Helper.getUUID() method",
+                tracking_trace: referenceId,
                 function_code: FUNCTIONCODES['Fund Transfer For Credit'],
                 desitination_bank: String(bankMobileCode),
                 session_id: "session",
@@ -116,13 +124,25 @@ class GIP_Service {
             };
             //request sent
             let response = await this.Repo.FundTransfer(body);
+            response.act_code = response.act_code == "300" ? "Processed" : "Failed";
             return response;
         }
         catch (error) {
-            let [code, message, extra] = error;
-            throw ERROR.HandleError(code, extra);
+            this.final = `Error: @ ${helper_1.default.getDate()} - payload: ${JSON.stringify(payload)} ${error.message} `;
+            if (error == "909") {
+                let tries = 0;
+                while (tries < 3) {
+                    setInterval(() => {
+                        body.function_code = FUNCTIONCODES["Transaction Status Check"];
+                        this.workers.submitTask(this.CheckTransactionStatus(body));
+                    }, 5000);
+                }
+            }
+            throw await this.ErrorSwitch(error, "Something went wrong while make transfer");
         }
         finally {
+            await helper_1.default.logger(this.final, this.LogFile);
+            this.final = null;
         }
     }
     GetBalanceEnquiry() {
@@ -132,8 +152,30 @@ class GIP_Service {
     ReverseTransaction() {
         return;
     }
+    async CheckTransactionStatus(payload) {
+        try {
+            let response = await this.Repo.FundTransfer(payload);
+            return response;
+        }
+        catch (error) {
+            throw error;
+        }
+    }
+    ;
     async CheckProcessorStatus() {
         return await false;
+    }
+    async ErrorSwitch(code, defaultMessage = "Invalid") {
+        switch (code) {
+            case "100":
+                throw await this.errorHandler.CustomError(error_1.ErrorEnum[403], "Invalid SOAP envelope");
+            case "306":
+                throw await this.errorHandler.CustomError(error_1.ErrorEnum[403], "Invalid SOAP envelope");
+            case "400":
+                throw await this.errorHandler.CustomError(error_1.ErrorEnum[400], "Something happened");
+            default:
+                throw code;
+        }
     }
 }
 exports.default = GIP_Service;

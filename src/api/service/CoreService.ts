@@ -72,9 +72,6 @@ class SendMoneyService {
             }
              
             // if(processors.length === 0) throw await this.error.CustomError(ErrorEnum[403],"App run out of processors")
-            
-            
-
             // return result
 
         } catch (error) {
@@ -106,7 +103,7 @@ class SendMoneyService {
             let transactionType = await this.transactionType.GetTransactionTypeByName(payload.accountType.toUpperCase())
             let application = await this.application.GetApplication(app)
             let processors = await this.mappings.GetAllProcessorsForApp(app,payload.accountType.toUpperCase())
-            
+
             if(payload.amount < transactionType.MinAmount || payload.amount > transactionType.MaxAmount) {
                 throw await this.error.CustomError(ErrorEnum[403],"Sending Amount is not a valid amount")//check for amount validity
             }
@@ -115,7 +112,8 @@ class SendMoneyService {
                 SessionID: await HELPER.GENERATE_UUID(),
                 Amount: payload.amount,
                 TransactionTypeId: transactionType.id,
-                ApplicationId: application.id
+                ApplicationId: application.id,
+                ReferenceID:payload.referenceId,
             }
             let currentTransaction = await this.transaction.CreateTransaction(transactPayload)
 
@@ -128,10 +126,28 @@ class SendMoneyService {
                     if(result){
                         //post response data
                         await this.requestResponse.CreateRequestResponse(false,currentTransaction.id,processors[0].id,result)
-                        return result
+
+                        //get details from processor
+                        let updateTransaction = {
+                            ProcessedAt:result.ProcessedAt,
+                            Status:result.act_code
+
+                        }
+
+                    return await this.transaction.UpdateTransactionStatus(currentTransaction.SessionID,updateTransaction)
+                    
                     }
                     else{//Transaction failed to process, eject current processor and restart process
-                        console.log('Transaction processing failed. Trying next processor...');
+                        if(processors.length == 0){
+                             //get details from processor
+                        let updateTransaction = {
+                            ProcessedAt:result.ProcessedAt || "Failed",
+                            Status:result.act_code
+
+                        }
+
+                    return await this.transaction.UpdateTransactionStatus(currentTransaction.SessionID,updateTransaction)
+                        }
                         processors.shift(); // Remove the failed processor 
                     }
                     await this.requestResponse.CreateRequestResponse(false,currentTransaction.id,processors[0].id,result)
@@ -150,6 +166,22 @@ class SendMoneyService {
         }
 
     }
+
+    async GetTransactionDetails(transactionRef: string):Promise<any> {
+        try {
+            if(!transactionRef) throw await this.error.CustomError(ErrorEnum[403],"Transaction Reference is invalid");
+
+            let transaction =  await this.transaction.GetTransaction(transactionRef);
+
+            delete transaction.id
+            
+            return transaction
+            
+        } catch (error) {
+            throw error
+        }
+    }
+
 
 
 

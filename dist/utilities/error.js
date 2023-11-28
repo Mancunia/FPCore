@@ -8,6 +8,7 @@ var ErrorEnum;
     ErrorEnum[ErrorEnum["UniqueConstraint"] = 401] = "UniqueConstraint";
     ErrorEnum[ErrorEnum["NotFound"] = 404] = "NotFound";
     ErrorEnum[ErrorEnum["ForbiddenError"] = 403] = "ForbiddenError";
+    ErrorEnum[ErrorEnum["TimedOutError"] = 408] = "TimedOutError";
 })(ErrorEnum || (exports.ErrorEnum = ErrorEnum = {}));
 class ErrorHandler {
     constructor(file) {
@@ -24,6 +25,8 @@ class ErrorHandler {
     async HandleError(error, message = "") {
         console.log("message", error);
         switch (error) {
+            case ErrorEnum[408]:
+                return [ErrorHandler.STATUS_ERROR_408, "Time Out", message || "Request Timed Out"];
             case ErrorEnum[404]:
                 //code:404
                 return [ErrorHandler.STATUS_ERROR_404, "Not Found", message || "Data not found"];
@@ -47,5 +50,6 @@ ErrorHandler.STATUS_ERROR_500 = 500;
 ErrorHandler.STATUS_ERROR_403 = 403;
 ErrorHandler.STATUS_ERROR_401 = 401;
 ErrorHandler.STATUS_ERROR_400 = 400;
+ErrorHandler.STATUS_ERROR_408 = 408;
 exports.default = ErrorHandler;
 //# sourceMappingURL=error.js.map

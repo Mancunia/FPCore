@@ -7,6 +7,8 @@ const express_1 = require("express");
 const CoreController_1 = __importDefault(require("../controller/CoreController"));
 let controller = new CoreController_1.default();
 const router = (0, express_1.Router)();
-router.post('/', controller.MakeNameEnquiry);
+router.post('/getName', controller.MakeNameEnquiry);
+router.post('/send', controller.MakeFundTransfer);
+router.get('/find/:reference', controller.GetTransaction);
 exports.default = router;
 //# sourceMappingURL=CoreRoutes.js.map

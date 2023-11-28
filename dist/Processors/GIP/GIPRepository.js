@@ -128,7 +128,7 @@ class GIP_Processor {
         let res;
         //TODO: Add fundtransfer functionality
         try {
-            this.data = `?xml version="1.0" encoding="utf-8"?>
+            this.data = `<?xml version="1.0" encoding="utf-8"?>
                 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                     <soapenv:Body>
                         <com:GIPTransaction>
@@ -187,16 +187,7 @@ class GIP_Processor {
         }
         catch (error) {
             //TODO:Handle error response
-            let code = error.message;
-            switch (code) {
-                case "100":
-                case "306":
-                    throw error_1.ErrorEnum["ForbiddenError"];
-                    break;
-                default:
-                    throw error_1.ErrorEnum["Unknown error"];
-                    break;
-            }
+            throw error;
         }
     }
     async FundTransfer({ amount, account_to_debit, account_to_credit, date, tracking_trace, function_code, origin_bank, desitination_bank, session_id, channel_code, name_to_debit, name_to_credit, narration, QRCode }) {
@@ -204,7 +195,7 @@ class GIP_Processor {
         let res;
         //TODO: Add fundtransfer functionality
         try {
-            this.data = `?xml version="1.0" encoding="utf-8"?>
+            this.data = `<?xml version="1.0" encoding="utf-8"?>
                 <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                     <soapenv:Body>
                         <com:GIPTransaction>
@@ -265,21 +256,11 @@ class GIP_Processor {
         }
         catch (error) {
             //TODO:Handle error exceptions
-            let code = error.message;
-            switch (code) {
-                case "100":
-                case "306":
-                    throw { code: error_1.ErrorEnum[403], message: "Invalid SOAP envelope" };
-                case "400":
-                    throw { code: error_1.ErrorEnum[400], message: "Something happened" };
-                default:
-                    throw error_1.ErrorEnum[400];
-            }
+            throw error;
         }
     }
     async CheckTransactionStatus() {
-        //TODO: Add check transaction status functionality
-        return await {};
+        return;
     }
     async ReverseTransaction() {
         //TODO: Add reverse transaction functionality

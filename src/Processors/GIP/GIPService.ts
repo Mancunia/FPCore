@@ -1,10 +1,13 @@
 import { NameEnquiryRequestData,BalanceEnquiryRequestData, FundTransferRequestData, GIPNameEnquiryResponseData } from "./DTO";
 import { NameEnquiry,FundTransfer } from "..";
 import GIP_Processor from "./GIPRepository";
+
+// import TransactionService from "../../api/service/TransactionService";
+
 import { ProcessorsService } from "..";
 import HELPER from "../../utilities/helper";
 import ErrorHandler,{ ErrorEnum } from "../../utilities/error";
-
+import ThreadPool from "../../utilities/workerThreads";
 
 enum FUNCTIONCODES {
     "Name Enquiry For Credit" = 230,
@@ -12,7 +15,8 @@ enum FUNCTIONCODES {
     "Fund Transfer For Credit" = 240,
     "Fund Transfer For Debit" = 241,
     "OTP request before Debit" = 242,
-    "Balance Enquiry" = 250
+    "Balance Enquiry" = 250,
+    "Transaction Status Check" = 111
 }
 
 enum CHANNELCODES {
@@ -31,10 +35,15 @@ class GIP_Service implements ProcessorsService {
     LogFile: string = "/ghipps.log";
     private Repo : GIP_Processor
     private errorHandler: ErrorHandler
+    private workers:ThreadPool
+
+    // private transactions:TransactionService
 
     constructor(){
         this.Repo = new GIP_Processor()
         this.errorHandler = new ErrorHandler()
+        this.workers = new ThreadPool(4)
+        // this.transactions = new TransactionService()
     }
 
     /*
@@ -92,10 +101,10 @@ class GIP_Service implements ProcessorsService {
     */
     async MakeFundTransfer(payload:FundTransfer): Promise<object> {
         let body:FundTransferRequestData
-        let {senderName,amount,recipientName,recipientAccount,accountType,bankMobileCode,narration}=payload
+        let {senderName,amount,recipientName,recipientAccount,accountType,bankMobileCode,narration,referenceId}=payload
         try {
             //Check transaction details
-            if(!senderName || !recipientName || !amount || !recipientAccount || !accountType) throw {code:ErrorEnum[403],message:"Some essential data was not passed"};
+            if(!senderName || !recipientName || !amount || !recipientAccount || !accountType|| !referenceId) throw {code:ErrorEnum[403],message:"Some essential data was not passed"};
 
              //2. log transaction details
              await HELPER.logger(`ATTEMPTING Fund transfer: @${HELPER.getDate()} - payload: ${JSON.stringify(payload)} `,this.LogFile)
@@ -105,7 +114,7 @@ class GIP_Service implements ProcessorsService {
                 amount:(String(amount)).padStart(12, "0"),
                 account_to_credit:recipientAccount,
                 date: HELPER.getDate(),
-                tracking_trace: await HELPER.GENERATE_UUID(),
+                tracking_trace: referenceId,
                 function_code:FUNCTIONCODES['Fund Transfer For Credit'],
                 desitination_bank:String(bankMobileCode),
                 session_id:"session",
@@ -116,11 +125,29 @@ class GIP_Service implements ProcessorsService {
             //request sent
             let response = await this.Repo.FundTransfer(body)
 
+            response.act_code = response.act_code == "300" ? "Processed" : "Failed"
             return response
             
             
         } catch (error) {
             this.final= `Error: @ ${HELPER.getDate()} - payload: ${JSON.stringify(payload)} ${error.message} `
+           console.error("error:",error)
+            if(error =="909"){
+                let tries = 0
+                while(tries < 3 ){
+
+                     setInterval(() =>{
+
+                     body.function_code = FUNCTIONCODES["Transaction Status Check"]
+                        console.log("While @:",tries)
+                    this.workers.submitTask(this.CheckTransactionStatus(body))
+                        tries ++
+                },5000)
+
+                }
+               
+               
+            }
            throw await this.ErrorSwitch(error,"Something went wrong while make transfer");
         }
         finally{
@@ -140,8 +167,15 @@ class GIP_Service implements ProcessorsService {
         return
     }
 
-    CheckTransactionStatus():Promise<any> {
-        return 
+   async  CheckTransactionStatus(payload:FundTransferRequestData):Promise<any> {
+       try {
+        let response = await this.Repo.FundTransfer(payload)
+
+            return response
+        
+       } catch (error) {
+            throw error
+       }
     };
    
 

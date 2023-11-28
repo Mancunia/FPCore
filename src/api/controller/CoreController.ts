@@ -24,10 +24,22 @@ class CoreController{
     async MakeFundTransfer(req: Request, res: Response){
         try {
             let payload = req.body
-            let response = await service.MakeFundTransfer(res.locals.appToken,payload)
+            let transaction = await service.MakeFundTransfer(res.locals.appToken,payload)
 
-            res.status(200).json(response)
+            res.status(200).json(transaction)
             
+        } catch (error) {
+            let errors:[number,string,string?] = await errorHandler.HandleError(error?.errorCode,error?.message)
+            res.status(errors[0]).json({error: errors[1],message:errors[2]})
+        }
+    }
+
+    async GetTransaction(req: Request, res: Response) {
+        try {
+            let refID = req.params.reference
+            let transaction = await service.GetTransactionDetails(refID)
+
+            res.status(200).json(transaction)
         } catch (error) {
             let errors:[number,string,string?] = await errorHandler.HandleError(error?.errorCode,error?.message)
             res.status(errors[0]).json({error: errors[1],message:errors[2]})

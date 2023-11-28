@@ -31,6 +31,11 @@ Transaction.init({
     ProcessedAt: {
         type: sequelize_1.DataTypes.DATE,
         allowNull: true
+    },
+    ReferenceID: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false,
+        unique: true
     }
 }, {
     timestamps: true,

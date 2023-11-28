@@ -43,12 +43,12 @@ class HELPER {
     static async logger(message, file = "") {
         // const file = Config.File
         message = "#" + message + "\n";
-        let dir = `${__dirname}${file}`;
+        let dir = `${__dirname}${env_1.SERVER_LOG_FILE}`;
         try {
             if (!fs_1.default.existsSync(dir)) {
                 fs_1.default.mkdirSync(dir, { recursive: true });
             }
-            fs_1.default.appendFile(dir, message, async (err) => {
+            fs_1.default.appendFile(dir + file, message, async (err) => {
                 if (err) {
                     console.log("Error", err);
                     throw await errorHandler.CustomError(error_1.ErrorEnum[500], `Error Writing File to file: ${file}`);
@@ -56,6 +56,7 @@ class HELPER {
             });
         }
         catch (error) {
+            console.log("Error logger", error);
             throw error;
         }
     }

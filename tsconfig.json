@@ -13,5 +13,5 @@
         "esm": true,
         "experimentalSpecifierResolution": "node"
     },
-    "include": ["src/**/*.ts","src/**/*.cjs"],
+    "include": ["src/**/*.ts","src/**/*.cjs", "src/db/migrations/20231126210754-requestResponseFix.js"],
 }

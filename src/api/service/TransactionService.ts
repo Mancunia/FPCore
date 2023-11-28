@@ -1,5 +1,5 @@
 import TransactionRepository from "../../db/repository/TransactionsRepository";
-import { TransactionIn, TransactionOut } from "../../db/models/TransactionsModel";
+import { TransactionIn, TransactionOut,TransactionUpdate } from "../../db/models/TransactionsModel";
 import ErrorHandler,{ErrorEnum} from "../../utilities/error";
 
 class TransactionService{
@@ -36,6 +36,20 @@ class TransactionService{
             throw error
         }
     }
+     async UpdateTransactionStatus(sessionID:string,payload:TransactionUpdate): Promise<TransactionOut>{
+        try {
+            if(payload.id){
+                delete payload.id
+            }
+            let transaction = await this.Repo.updateTransaction(sessionID,payload);
+
+            return transaction
+            
+        } catch (error) {
+            throw error
+        }
+
+     }
 }
 
 export default TransactionService

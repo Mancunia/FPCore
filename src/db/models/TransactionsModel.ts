@@ -8,11 +8,15 @@ interface TransactionInterface {
     Amount:number;
     Status:"Processed" | "Processing" | "Failed" | "Pending" | "Canceled" | "Do Not Process"
     ProcessedAt:Date
+    ReferenceID:string
 }
 
 export interface TransactionIn extends Optional<TransactionInterface,'id'|'ProcessedAt'|'Status'> {
     ApplicationId:number;
     TransactionTypeId:number;
+}
+export interface TransactionUpdate extends Optional<TransactionIn,'id'|'TransactionTypeId'|'ApplicationId'|'ReferenceID'|'Amount'|'SessionID'> {
+
 }
 export interface TransactionOut extends Required<TransactionInterface>{}
 
@@ -22,6 +26,7 @@ class Transaction extends Model<TransactionInterface,TransactionIn> implements T
     Amount: number;
     Status: "Processed" | "Processing" | "Failed" | "Pending" | "Canceled" | "Do Not Process";
     ProcessedAt: Date;
+    ReferenceID: string;
 }
 
 Transaction.init({
@@ -47,6 +52,11 @@ Transaction.init({
     ProcessedAt:{
         type: DataTypes.DATE,
         allowNull: true
+    },
+    ReferenceID:{
+        type:DataTypes.STRING,
+        allowNull:false,
+        unique:true
     }
 },{
     timestamps:true,

@@ -11,7 +11,7 @@ exports.SERVER_HOST = process.env.SERVER_DB_HOST;
 exports.SERVER_DB_NAME = process.env.SERVER_DB_NAME;
 exports.SERVER_USER = process.env.SERVER_DB_USER;
 exports.SERVER_PASSWORD = process.env.SERVER_DB_PASSWORD;
-exports.SERVER_LOG_FILE = process.env.LOG_FILE;
+exports.SERVER_LOG_FILE = process.env.SERVER_LOG_FILE;
 exports.SERVER_DIALECT = process.env.SERVER_DIALECT;
 //Server configuration
 exports.SERVER_ENV = process.env.SERVER_ENV;
