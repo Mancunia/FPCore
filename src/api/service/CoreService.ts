@@ -17,7 +17,7 @@ interface TransactionInterfacePayload{
 }
 
 
-class SendMoneyService {
+class CoreService {
      
     private Processor:ProcessorsService
     private mappings: ProcessorMappingService
@@ -39,8 +39,7 @@ class SendMoneyService {
         this.requestResponse = new RequestResponseService()
 
     }
-
-    // let {recipientName,recipientAccount,accountType,bankModileCode} = payload
+    
     /*
     0.get processors
     1.check if processors are available
@@ -57,13 +56,13 @@ class SendMoneyService {
             while(processors.length > 0) {
                 this.Processor = await this.SwitchProcessor(processors[0].Name)
                 try {
-                    console.log("ProcessorName:",this.Processor)
+                    console.log("ProcessorName:",this.Processor)//TODO: take this log off
                     let result = await this.Processor.MakeNameEnquiry(payload)
                     if(result){
                         return result
                     }
                     else{//Transaction failed to process, eject current processor and restart process
-                        console.log('Transaction processing failed. Trying next processor...');
+                        console.log('Transaction processing failed. Trying next processor...');//TODO: take this log off
                         processors.shift(); // Remove the failed processor 
                     }
                 } catch (error) {
@@ -75,7 +74,7 @@ class SendMoneyService {
             // return result
 
         } catch (error) {
-            console.log("in Service Core",error)
+            console.log("in Service Core",error)//TODO: take this log off
              let {errorCode, message} = error
 
             throw await ERROR.HandleError(errorCode, message)
@@ -158,7 +157,7 @@ class SendMoneyService {
 
             
         } catch (error) {
-            console.log('error:',error)
+            console.log('error:',error)//TODO: take this log off
             throw error
         }
         finally {
@@ -192,12 +191,12 @@ class SendMoneyService {
         try {
             switch (processorName) {
                 case "GIP":
-                    console.log("In Swith ")
+                    console.log("In Swith ")//TODO: take this log off
                     return new GIP_Service()
                     break;
             
                 default:
-                    console.log("In Swith default")
+                    console.log("In Swith default")//TODO: take this log off
                     throw await this.error.CustomError(ErrorEnum[400],"Ran out of processors")
                     break;
             }
@@ -212,4 +211,4 @@ class SendMoneyService {
 
 }
 
-export default SendMoneyService
+export default CoreService

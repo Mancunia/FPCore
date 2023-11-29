@@ -345,12 +345,7 @@ import { ErrorEnum } from "../../utilities/error";
             
         }
 
-        async CheckTransactionStatus(): Promise<any> {
-            return
-        }
-
         async ReverseTransaction(): Promise<object> {
-
             //TODO: Add reverse transaction functionality
             return await {}
         }

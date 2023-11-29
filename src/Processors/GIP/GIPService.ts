@@ -131,7 +131,7 @@ class GIP_Service implements ProcessorsService {
             
         } catch (error) {
             this.final= `Error: @ ${HELPER.getDate()} - payload: ${JSON.stringify(payload)} ${error.message} `
-           console.error("error:",error)
+           console.error("error:",error)//TODO: take this log off
             if(error =="909"){
                 let tries = 0
                 while(tries < 3 ){
@@ -139,7 +139,7 @@ class GIP_Service implements ProcessorsService {
                      setInterval(() =>{
 
                      body.function_code = FUNCTIONCODES["Transaction Status Check"]
-                        console.log("While @:",tries)
+                        console.log("While @:",tries)//TODO: take this log off
                     this.workers.submitTask(this.CheckTransactionStatus(body))
                         tries ++
                 },5000)
