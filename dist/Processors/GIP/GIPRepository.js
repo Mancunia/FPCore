@@ -259,9 +259,6 @@ class GIP_Processor {
             throw error;
         }
     }
-    async CheckTransactionStatus() {
-        return;
-    }
     async ReverseTransaction() {
         //TODO: Add reverse transaction functionality
         return await {};

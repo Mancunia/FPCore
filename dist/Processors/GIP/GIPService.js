@@ -129,14 +129,12 @@ class GIP_Service {
         }
         catch (error) {
             this.final = `Error: @ ${helper_1.default.getDate()} - payload: ${JSON.stringify(payload)} ${error.message} `;
+            console.error("error:", error); //TODO: take this log off
             if (error == "909") {
-                let tries = 0;
-                while (tries < 3) {
-                    setInterval(() => {
-                        body.function_code = FUNCTIONCODES["Transaction Status Check"];
-                        this.workers.submitTask(this.CheckTransactionStatus(body));
-                    }, 5000);
-                }
+                setTimeout(() => {
+                    body.function_code = FUNCTIONCODES["Transaction Status Check"];
+                    this.workers.submitTask(this.CheckTransactionStatus(body));
+                }, 50000);
             }
             throw await this.ErrorSwitch(error, "Something went wrong while make transfer");
         }

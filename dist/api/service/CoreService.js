@@ -35,7 +35,7 @@ const TransactionService_1 = __importDefault(require("./TransactionService"));
 const ApplicationService_1 = __importDefault(require("./ApplicationService"));
 const RequestResponseService_1 = __importDefault(require("./RequestResponseService"));
 const ERROR = new error_1.default();
-class SendMoneyService {
+class CoreService {
     constructor() {
         // this.Processor = new GIP_Service()
         this.mappings = new ProcessorMappingService_1.default();
@@ -45,7 +45,6 @@ class SendMoneyService {
         this.application = new ApplicationService_1.default();
         this.requestResponse = new RequestResponseService_1.default();
     }
-    // let {recipientName,recipientAccount,accountType,bankModileCode} = payload
     /*
     0.get processors
     1.check if processors are available
@@ -61,13 +60,13 @@ class SendMoneyService {
             while (processors.length > 0) {
                 this.Processor = await this.SwitchProcessor(processors[0].Name);
                 try {
-                    console.log("ProcessorName:", this.Processor);
+                    console.log("ProcessorName:", this.Processor); //TODO: take this log off
                     let result = await this.Processor.MakeNameEnquiry(payload);
                     if (result) {
                         return result;
                     }
                     else { //Transaction failed to process, eject current processor and restart process
-                        console.log('Transaction processing failed. Trying next processor...');
+                        console.log('Transaction processing failed. Trying next processor...'); //TODO: take this log off
                         processors.shift(); // Remove the failed processor 
                     }
                 }
@@ -79,7 +78,7 @@ class SendMoneyService {
             // return result
         }
         catch (error) {
-            console.log("in Service Core", error);
+            console.log("in Service Core", error); //TODO: take this log off
             let { errorCode, message } = error;
             throw await ERROR.HandleError(errorCode, message);
         }
@@ -104,7 +103,7 @@ class SendMoneyService {
             let transactionType = await this.transactionType.GetTransactionTypeByName(payload.accountType.toUpperCase());
             let application = await this.application.GetApplication(app);
             let processors = await this.mappings.GetAllProcessorsForApp(app, payload.accountType.toUpperCase());
-            if (payload.amount < transactionType.MinAmount || payload.amount > transactionType.MaxAmount) {
+            if (payload.amount < transactionType.MinAmount || payload.amount >= transactionType.MaxAmount) {
                 throw await this.error.CustomError(error_1.ErrorEnum[403], "Sending Amount is not a valid amount"); //check for amount validity
             }
             //create transaction
@@ -116,42 +115,29 @@ class SendMoneyService {
                 ReferenceID: payload.referenceId,
             };
             let currentTransaction = await this.transaction.CreateTransaction(transactPayload);
-            while (processors.length > 0) {
-                this.Processor = await this.SwitchProcessor(processors[0].Name);
-                try {
-                    //post request data
-                    await this.requestResponse.CreateRequestResponse(true, currentTransaction.id, processors[0].ProcessorId, payload);
-                    let result = await this.Processor.MakeFundTransfer(payload);
-                    if (result) {
-                        //post response data
-                        await this.requestResponse.CreateRequestResponse(false, currentTransaction.id, processors[0].id, result);
-                        //get details from processor
-                        let updateTransaction = {
-                            ProcessedAt: result.ProcessedAt,
-                            Status: result.act_code
-                        };
-                        return await this.transaction.UpdateTransactionStatus(currentTransaction.SessionID, updateTransaction);
-                    }
-                    else { //Transaction failed to process, eject current processor and restart process
-                        if (processors.length == 0) {
-                            //get details from processor
-                            let updateTransaction = {
-                                ProcessedAt: result.ProcessedAt || "Failed",
-                                Status: result.act_code
-                            };
-                            return await this.transaction.UpdateTransactionStatus(currentTransaction.SessionID, updateTransaction);
-                        }
-                        processors.shift(); // Remove the failed processor 
-                    }
-                    await this.requestResponse.CreateRequestResponse(false, currentTransaction.id, processors[0].id, result);
-                }
-                catch (error) {
-                    throw error;
+            //post request data
+            await this.requestResponse.CreateRequestResponse(true, currentTransaction.id, processors[0].ProcessorId, payload); // create request
+            this.Processor = await this.SwitchProcessor(processors[0].Name); // fetch processor
+            let result = await this.Processor.MakeFundTransfer(payload); //make fund transactions
+            processors.shift();
+            if (!result) { //first attempt failed
+                //post response data
+                await this.requestResponse.CreateRequestResponse(false, currentTransaction.id, processors[0].id, result);
+                if (processors.length > 0) {
+                    this.Processor = await this.SwitchProcessor(processors[0].Name); // fetch processor
+                    result = await this.Processor.MakeFundTransfer(payload); //make fund transactions
                 }
             }
+            //post response data
+            await this.requestResponse.CreateRequestResponse(false, currentTransaction.id, processors[0].id, result);
+            let updateTransaction = {
+                ProcessedAt: result.ProcessedAt,
+                Status: result.act_code
+            };
+            return await this.transaction.UpdateTransactionStatus(currentTransaction.SessionID, updateTransaction);
         }
         catch (error) {
-            console.log('error:', error);
+            console.log('error:', error); //TODO: take this log off
             throw error;
         }
         finally {
@@ -175,11 +161,11 @@ class SendMoneyService {
         try {
             switch (processorName) {
                 case "GIP":
-                    console.log("In Swith ");
+                    console.log("In Swith "); //TODO: take this log off
                     return new GIPService_1.default();
                     break;
                 default:
-                    console.log("In Swith default");
+                    console.log("In Swith default"); //TODO: take this log off
                     throw await this.error.CustomError(error_1.ErrorEnum[400], "Ran out of processors");
                     break;
             }
@@ -189,5 +175,5 @@ class SendMoneyService {
         }
     }
 }
-exports.default = SendMoneyService;
+exports.default = CoreService;
 //# sourceMappingURL=CoreService.js.map

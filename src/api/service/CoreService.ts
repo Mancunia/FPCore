@@ -39,7 +39,7 @@ class CoreService {
         this.requestResponse = new RequestResponseService()
 
     }
-    
+
     /*
     0.get processors
     1.check if processors are available
@@ -102,8 +102,7 @@ class CoreService {
             let transactionType = await this.transactionType.GetTransactionTypeByName(payload.accountType.toUpperCase())
             let application = await this.application.GetApplication(app)
             let processors = await this.mappings.GetAllProcessorsForApp(app,payload.accountType.toUpperCase())
-
-            if(payload.amount < transactionType.MinAmount || payload.amount > transactionType.MaxAmount) {
+            if(payload.amount < transactionType.MinAmount || payload.amount >= transactionType.MaxAmount) {
                 throw await this.error.CustomError(ErrorEnum[403],"Sending Amount is not a valid amount")//check for amount validity
             }
             //create transaction
@@ -116,45 +115,31 @@ class CoreService {
             }
             let currentTransaction = await this.transaction.CreateTransaction(transactPayload)
 
-            while(processors.length > 0) {
-                this.Processor = await this.SwitchProcessor(processors[0].Name)
-                try {
-                    //post request data
-                    await this.requestResponse.CreateRequestResponse(true,currentTransaction.id,processors[0].ProcessorId,payload)
-                    let result = await this.Processor.MakeFundTransfer(payload)
-                    if(result){
-                        //post response data
-                        await this.requestResponse.CreateRequestResponse(false,currentTransaction.id,processors[0].id,result)
+             //post request data
+             await this.requestResponse.CreateRequestResponse(true,currentTransaction.id,processors[0].ProcessorId,payload)// create request
+             this.Processor = await this.SwitchProcessor(processors[0].Name)// fetch processor
 
-                        //get details from processor
-                        let updateTransaction = {
-                            ProcessedAt:result.ProcessedAt,
-                            Status:result.act_code
+             let result = await this.Processor.MakeFundTransfer(payload)//make fund transactions
 
-                        }
+             processors.shift()
+             if(!result){//first attempt failed
+                //post response data
+                await this.requestResponse.CreateRequestResponse(false,currentTransaction.id,processors[0].id,result)
 
-                    return await this.transaction.UpdateTransactionStatus(currentTransaction.SessionID,updateTransaction)
-                    
-                    }
-                    else{//Transaction failed to process, eject current processor and restart process
-                        if(processors.length == 0){
-                             //get details from processor
-                        let updateTransaction = {
-                            ProcessedAt:result.ProcessedAt || "Failed",
-                            Status:result.act_code
-
-                        }
-
-                    return await this.transaction.UpdateTransactionStatus(currentTransaction.SessionID,updateTransaction)
-                        }
-                        processors.shift(); // Remove the failed processor 
-                    }
-                    await this.requestResponse.CreateRequestResponse(false,currentTransaction.id,processors[0].id,result)
-                } catch (error) {
-                    throw error
+                if(processors.length > 0){
+                    this.Processor = await this.SwitchProcessor(processors[0].Name)// fetch processor
+                    result = await this.Processor.MakeFundTransfer(payload)//make fund transactions
                 }
-            }
 
+             }
+              //post response data
+                 await this.requestResponse.CreateRequestResponse(false,currentTransaction.id,processors[0].id,result)
+                 let updateTransaction = {
+                    ProcessedAt:result.ProcessedAt,
+                    Status:result.act_code
+
+                }
+                 return await this.transaction.UpdateTransactionStatus(currentTransaction.SessionID,updateTransaction)
             
         } catch (error) {
             console.log('error:',error)//TODO: take this log off
